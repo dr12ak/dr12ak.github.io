@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css?family=JetBrains Mono" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      URL:
+      <input type="text" id="url" />
+    </header>
+    <nav>
+      <div id="add-tab" data-index="1" onclick="addTab(this);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 100 100">
+          <path d="M50 10 50 90 M10 50 90 50" stroke-width="20" />
+        </svg>
+      </div>
+      <ul>
+        <li class="q0 active" data-order="-1" onclick="focusTab(this);">
+          query0
+          <div onclick="closeTab(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100">
+              <path d="M10 10 90 90 M90 10 10 90" stroke-width="20" />
+            </svg>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <article class="q0 active">
+        <textarea class="prompt" rows="10"></textarea>
+        <div class="controls">
+          <button onclick="queueQuery(this);">Start</button>
+          <div>
+            <input class="iterations" type="number" min="1" max="100" step="1" value="20" />
+            <div class="progress">0/0</div>
+          </div>
+        </div>
+        <details>
+          <summary>Negative Prompt</summary>
+          <textarea rows="5"></textarea>
+        </details>
+      </article>
+    </main>
+  </body>
+</html>
