@@ -4,15 +4,18 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css?family=JetBrains Mono" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
     <title>Document</title>
+    <script src="autocomplete/autocomplete.js"></script>
     <script src="app.js"></script>
   </head>
   <body>
     <header>
       URL:
-      <input type="text" id="url" />
+      <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" />
     </header>
     <nav>
       <div id="add-tab" data-index="1" onclick="addTab(this);">
@@ -20,7 +23,7 @@
           <path d="M50 10 50 90 M10 50 90 50" stroke-width="20" />
         </svg>
       </div>
-      <ul>
+      <ul id="tab-list">
         <li class="q0 active" data-order="-1" onclick="focusTab(this);">
           query0
           <div onclick="closeTab(this)">
@@ -31,9 +34,9 @@
         </li>
       </ul>
     </nav>
-    <main>
+    <main id="tab-settings">
       <article class="q0 active">
-        <textarea class="prompt" rows="10"></textarea>
+        <textarea class="prompt" rows="10" spellcheck="false">(masterpiece, best quality, ultra-detailed), (illustration), (beautiful detailed eyes), (very detailed face), (1girl), (solo), (depth of field), bokeh, light smile, full-face blush, (open mouth:0.6), sweat, sweatdrop, thighs, looking at viewer, sunlight, dappled sunlight, (large breasts:1), </textarea>
         <div class="controls">
           <button onclick="queueQuery(this);">Start</button>
           <div>
@@ -43,7 +46,7 @@
         </div>
         <details>
           <summary>Negative Prompt</summary>
-          <textarea rows="5"></textarea>
+          <textarea class="negative-prompt" rows="5" spellcheck="false">(painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), bad-hands-5, watermark, text, error, blurry, jpeg artifacts, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, low quality:1.4), bad anatomy, ((cleavage)), (collar), (seiza), (wariza), badhandv4</textarea>
         </details>
       </article>
     </main>

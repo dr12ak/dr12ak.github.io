@@ -5,17 +5,15 @@
   --secondary-text-color: #9ca3af;
   --border-color: #374151;
   --border-radius: 0.3rem;
+  --accent: #0060df;
 }
 
 * {
   box-sizing: border-box;
   color: var(--primary-text-color);
-  background-color: var(--primary-background-color);
 
-  font-family: "JetBrains Mono", monospace;
-}
+  font-family: "Roboto Mono", monospace;
 
-*:not(textarea) {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -31,17 +29,12 @@ body {
   padding: 0;
 }
 
-header {
-  padding: 1rem;
+body {
+  background-color: var(--primary-background-color);
 }
 
-header > input {
-  border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-  border-radius: var(--border-radius);
-
-  width: min(20rem, calc(100% - 3rem));
+header {
+  padding: 1rem;
 }
 
 nav {
@@ -52,10 +45,13 @@ nav {
 }
 
 ul {
-  display: flex;
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+#tab-list {
+  display: flex;
   overflow-y: hidden;
   overflow-x: auto;
 
@@ -63,7 +59,7 @@ ul {
   padding-right: 1px;
 }
 
-li {
+#tab-list > li {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -77,7 +73,7 @@ li {
   color: var(--secondary-text-color);
 }
 
-li.active {
+#tab-list > li.active {
   background-color: var(--primary-background-color);
   outline: none;
   border-left: 1px solid var(--border-color);
@@ -92,7 +88,7 @@ svg {
   stroke: var(--primary-text-color);
   background-color: inherit;
 }
-li > div {
+#tab-list > li > div {
   display: flex;
   background-color: inherit;
 }
@@ -113,6 +109,7 @@ textarea {
   background-color: var(--secondary-background-color);
   width: 100%;
   min-height: 2rem;
+  padding: 0.5rem;
 
   border: none;
   overflow: auto;
@@ -123,12 +120,16 @@ textarea {
   box-shadow: none;
 
   resize: vertical;
+
+  font-size: 0.875rem;
+  line-height: 1.43;
 }
 
 article {
   margin-left: 1rem;
   padding: 1rem;
   margin-right: 1rem;
+  border: 1px solid var(--border-color);
   display: none;
 }
 
@@ -140,7 +141,6 @@ article.active {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  border: 1px solid var(--border-color);
 }
 
 summary {
@@ -154,28 +154,31 @@ summary {
   align-items: center;
 }
 
-.controls > * {
-  border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-}
-
 .iterations {
   width: 3.5rem;
   font-size: 1rem;
 
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+input {
   border: none;
   outline: 1px solid var(--border-color);
   background-color: var(--secondary-background-color);
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-radius: var(--border-radius);
 }
+
+header > input {
+  width: min(23rem, calc(100% - 3rem));
+}
+
 .controls > button {
   width: 5rem;
   height: 3rem;
 
   border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
+  outline: none;
+  background-color: var(--accent);
 
   cursor: pointer;
 }
@@ -190,5 +193,48 @@ summary {
 }
 
 button.can-stop {
-  background-color: var(--secondary-text-color);
+  background-color: var(--secondary-background-color);
+}
+
+#tab-list > li:only-child > div {
+  display: none;
+}
+
+.running {
+  background-color: var(--accent);
+}
+
+#autocomplete {
+  position: fixed;
+  font-size: 0.875rem;
+}
+
+.tag-autocomplete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  color: var(--primary-text-color);
+  background-color: var(--secondary-background-color);
+  padding: 0.5rem;
+
+  outline: 1px solid var(--border-color);
+
+  cursor: pointer;
+}
+
+.selected-tag-autocomplete {
+  color: var(--accent);
+  font-weight: bold;
+  background-color: var(--primary-background-color);
+}
+
+.empty-autocomplete {
+  display: none;
+}
+
+.tag-popularity {
+  margin-left: 1rem;
+  color: var(--secondary-text-color);
+  font-weight: normal;
 }
