@@ -75,10 +75,8 @@ function queueQuery(element) {
 async function createSet(queryClass) {
   const url = document.querySelector("#url").value;
   const iterations = parseInt(document.querySelector("article." + queryClass + " .iterations").value);
-  let prompt = document.querySelector("article." + queryClass + " .prompt").value;
-  prompt = dynamicPrompt(prompt);
-  let negativePrompt = document.querySelector("article." + queryClass + " .negative-prompt").value;
-  negativePrompt = dynamicPrompt(negativePrompt);
+  let prompt = dynamicPrompt(document.querySelector("article." + queryClass + " .prompt").value);
+  let negativePrompt = dynamicPrompt(document.querySelector("article." + queryClass + " .negative-prompt").value);
 
   const payload = {
     enable_hr: true,
@@ -105,6 +103,10 @@ async function createSet(queryClass) {
       startNextQuery(queryClass);
       return;
     }
+    prompt = dynamicPrompt(document.querySelector("article." + queryClass + " .prompt").value);
+    negativePrompt = dynamicPrompt(document.querySelector("article." + queryClass + " .negative-prompt").value);
+    payload["prompt"] = prompt;
+    payload["negative_prompt"] = negativePrompt;
     console.log(payload["prompt"]);
     const response = await fetch(`${url}/sdapi/v1/txt2img`, {
       method: "POST",
