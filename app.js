@@ -13,7 +13,6 @@ function focusTab(element) {
 }
 
 function closeTab(element) {
-  console.log(element);
   element = element.parentElement;
   element.remove();
   document.querySelector("." + getClass(element)).remove();
@@ -77,11 +76,9 @@ async function createSet(queryClass) {
   const url = document.querySelector("#url").value;
   const iterations = parseInt(document.querySelector("article." + queryClass + " .iterations").value);
   let prompt = document.querySelector("article." + queryClass + " .prompt").value;
-  console.log(prompt);
   prompt = dynamicPrompt(prompt);
-  console.log(prompt);
   let negativePrompt = document.querySelector("article." + queryClass + " .negative-prompt").value;
-  prompt = dynamicPrompt(negativePrompt);
+  negativePrompt = dynamicPrompt(negativePrompt);
 
   const payload = {
     enable_hr: true,
