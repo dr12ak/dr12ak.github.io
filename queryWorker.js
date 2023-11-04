@@ -44,8 +44,6 @@ async function start(query) {
         postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: "error", exception: error.message });
       }
     json.images.forEach((image, index) => {
-      let a = document.createElement("a");
-      a.href = "data:image/png;base64," + image;
       postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
     });
     postResponse("end iteration", i);
