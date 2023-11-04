@@ -18,13 +18,13 @@
       <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" />
     </header>
     <nav>
-      <div id="add-tab" data-index="1" onclick="addTab(this);">
+      <div id="add-tab" onclick="addTab();">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 100 100">
           <path d="M50 10 50 90 M10 50 90 50" stroke-width="20" />
         </svg>
       </div>
       <ul id="tab-list">
-        <li class="q0 active" data-order="-1" onclick="focusTab(this);">
+        <li class="q0" data-order="-1" onclick="focusTab(this);">
           query0
           <div onclick="closeTab(this)">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100">
@@ -35,8 +35,8 @@
       </ul>
     </nav>
     <main id="tab-settings">
-      <article class="q0 active">
-        <textarea class="prompt" rows="10" spellcheck="false">(masterpiece, best quality, ultra-detailed), (illustration), (beautiful detailed eyes), (very detailed face), (1girl), (solo), (depth of field), bokeh, light smile, full-face blush, (open mouth:0.6), sweat, sweatdrop, thighs, looking at viewer, sunlight, dappled sunlight, (large breasts:1), </textarea>
+      <article class="q0">
+        <textarea class="prompt" rows="10" spellcheck="false"></textarea>
         <div class="controls">
           <button onclick="queueQuery(this);">Start</button>
           <div>
@@ -46,7 +46,7 @@
         </div>
         <details>
           <summary>Negative Prompt</summary>
-          <textarea class="negative-prompt" rows="5" spellcheck="false">(painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), bad-hands-5, watermark, text, error, blurry, jpeg artifacts, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, low quality:1.4), bad anatomy, ((cleavage)), (collar), (seiza), (wariza), badhandv4</textarea>
+          <textarea class="negative-prompt" rows="5" spellcheck="false"></textarea>
         </details>
       </article>
     </main>

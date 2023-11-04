@@ -1,8 +1,34 @@
 let abort = false;
 let downloadCounter = 0;
+let safe = false;
+
+const DEFAULT_PROMPT = "(masterpiece, best quality, ultra-detailed), (illustration), (beautiful detailed eyes), (very detailed face), (1girl), (solo), (depth of field), bokeh, light smile, full-face blush, (open mouth:0.6), sweat, sweatdrop, thighs, looking at viewer, sunlight, dappled sunlight, (large breasts:1), ";
+const DEFAULT_NEGATIVE_PROMPT = "(painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), bad-hands-5, watermark, text, error, blurry, jpeg artifacts, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, low quality:1.4), bad anatomy, ((cleavage)), (collar), (seiza), (wariza), badhandv4";
+
+window.addEventListener("load", async () => {
+  if (new URLSearchParams(window.location.search).has("safe")) {
+    document.querySelector("header").style.display = "none";
+    document.querySelector("#tab-settings").setAttribute("safe", "true");
+    safe = true;
+  }
+
+  document.querySelector("#tab-settings").addEventListener("change", (event) => {
+    if (event.target.closest("textarea")) saveTab(getClass(event.target.closest("article")), event);
+  });
+
+  document.querySelectorAll(".q0").forEach((queryItem) => queryItem.remove());
+  if (localStorage.length === 0) localStorage.setItem("q0", JSON.stringify({ prompt: safe ? "" : DEFAULT_PROMPT, negativePrompt: safe ? "" : DEFAULT_NEGATIVE_PROMPT }));
+
+  for (let i = 0; i < localStorage.length; i++) {
+    addTab(localStorage.key(i).substring(1));
+    loadTab(localStorage.key(i));
+  }
+
+  document.querySelectorAll("." + getClass(document.querySelector("#tab-settings").firstElementChild)).forEach((queryItem) => queryItem.classList.add("active"));
+});
 
 function getClass(element) {
-  return element.className.substring(0, 2);
+  return element.className.split(" ")[0];
 }
 
 function focusTab(element) {
@@ -12,33 +38,67 @@ function focusTab(element) {
   }
 }
 
+function nextTabIndex() {
+  let i = 0;
+  while (true) {
+    if (document.querySelector("#tab-settings > .q" + i) == null) return i;
+    i++;
+  }
+}
+
+function emptyTab(tab) {
+  return (document.querySelector("." + getClass(tab) + " .prompt").value === "" || document.querySelector("." + getClass(tab) + " .prompt").value === DEFAULT_PROMPT) && (document.querySelector("." + getClass(tab) + " .negative-prompt").value === "" || document.querySelector("." + getClass(tab) + " .negative-prompt").value === DEFAULT_NEGATIVE_PROMPT);
+}
+
 function closeTab(element) {
   element = element.parentElement;
-  element.remove();
-  document.querySelector("." + getClass(element)).remove();
-  if (element.classList.contains("active")) {
-    document.querySelectorAll("." + getClass(document.querySelector("li"))).forEach((element) => element.classList.add("active"));
+  if (emptyTab(element) || confirm("All Entered Data Will Be Removed")) {
+    element.remove();
+    document.querySelector("." + getClass(element)).remove();
+    if (element.classList.contains("active")) {
+      document.querySelectorAll("." + getClass(document.querySelector("li"))).forEach((element) => element.classList.add("active"));
+    }
+    element.classList.add("removed");
+    localStorage.removeItem(getClass(element));
   }
-  element.classList.add("removed");
 }
-function addTab(element) {
+function addTab(tabIndex) {
+  if (tabIndex == null) tabIndex = nextTabIndex();
   const tab = document.createElement("li");
-  tab.classList.add("q" + element.dataset.index);
+  tab.classList.add("q" + tabIndex);
   tab.dataset.order = "-1";
   tab.setAttribute("onclick", "focusTab(this);");
-  tab.innerHTML = "query" + element.dataset.index + '<div onclick="closeTab(this)"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100"><path d="M10 10 90 90 M90 10 10 90" stroke-width="20" /></svg></div>';
+  tab.innerHTML = "query" + tabIndex + '<div onclick="closeTab(this)"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100"><path d="M10 10 90 90 M90 10 10 90" stroke-width="20" /></svg></div>';
   document.querySelector("ul").append(tab);
 
   const article = document.createElement("article");
-  article.classList.add("q" + element.dataset.index);
-  article.innerHTML = '<textarea class="prompt" rows="10" spellcheck="false">(masterpiece, best quality, ultra-detailed), (illustration), (beautiful detailed eyes), (very detailed face), (1girl), (solo), (depth of field), bokeh, light smile, full-face blush, (open mouth:0.6), sweat, sweatdrop, thighs, looking at viewer, sunlight, dappled sunlight, (large breasts:1), </textarea><div class="controls"><button onclick="queueQuery(this);">Start</button><div><input class="iterations" type="number" min="1" max="100" step="1" value="20" /><div class="progress">0/0</div></div></div><details><summary>Negative Prompt</summary><textarea class="negative-prompt" rows="5" spellcheck="false">(painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), bad-hands-5, watermark, text, error, blurry, jpeg artifacts, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, low quality:1.4), bad anatomy, ((cleavage)), (collar), (seiza), (wariza), badhandv4</textarea></details>';
-  document.querySelector("main").append(article);
+  article.classList.add("q" + tabIndex);
+  article.innerHTML = '<textarea class="prompt" rows="10" spellcheck="false">' + DEFAULT_PROMPT + '</textarea><div class="controls"><button onclick="queueQuery(this);">Start</button><div><input class="iterations" type="number" min="1" max="100" step="1" value="20" /><div class="progress">0/0</div></div></div><details><summary>Negative Prompt</summary><textarea class="negative-prompt" rows="5" spellcheck="false">' + DEFAULT_NEGATIVE_PROMPT + "</textarea></details>";
+  document.querySelector("#tab-settings").append(article);
 
-  element.dataset.index = parseInt(element.dataset.index) + 1;
+  if (safe) {
+    document.querySelector(".q" + tabIndex + " .prompt").value = "";
+    document.querySelector(".q" + tabIndex + " .negative-prompt").value = "";
+    document.querySelector(".q" + tabIndex + " .controls").style.display = "none";
+    document.querySelector(".q" + tabIndex + " details").style.display = "none";
+  }
+  if (JSON.parse(localStorage.getItem("q" + tabIndex)) == null) saveTab("q" + tabIndex);
+}
+
+function saveTab(queryClass) {
+  localStorage.setItem(queryClass, JSON.stringify({ prompt: document.querySelector("." + queryClass + " .prompt").value, negativePrompt: document.querySelector("." + queryClass + " .negative-prompt").value }));
+}
+
+function loadTab(queryClass) {
+  const storedTab = JSON.parse(localStorage.getItem(queryClass));
+  if (storedTab != null) {
+    document.querySelector("." + queryClass + " .prompt").value = storedTab.prompt;
+    document.querySelector("." + queryClass + " .negative-prompt").value = storedTab.negativePrompt;
+  }
 }
 
 function queueQuery(element) {
-  const tab = document.querySelector("li." + getClass(element.parentElement.parentElement));
+  const tab = document.querySelector("li." + getClass(element.closest("article")));
   tab.classList.toggle("queued");
   if (tab.classList.contains("queued")) {
     if (element.innerHTML === "Stopping") {
@@ -58,7 +118,7 @@ function queueQuery(element) {
     if (document.querySelectorAll(".running").length === 0) {
       tab.classList.add("running");
       element.innerHTML = "Stop";
-      createSet(getClass(tab));
+      startQuery(getClass(tab));
     }
   } else {
     if (tab.classList.contains("running")) {
@@ -72,86 +132,35 @@ function queueQuery(element) {
   }
 }
 
-async function createSet(queryClass) {
+async function startQuery(queryClass) {
   const url = document.querySelector("#url").value;
   const iterations = parseInt(document.querySelector("article." + queryClass + " .iterations").value);
-  let prompt = dynamicPrompt(document.querySelector("article." + queryClass + " .prompt").value);
-  let negativePrompt = dynamicPrompt(document.querySelector("article." + queryClass + " .negative-prompt").value);
+  const prompt = document.querySelector("article." + queryClass + " .prompt").value;
+  const negativePrompt = document.querySelector("article." + queryClass + " .negative-prompt").value;
 
-  const payload = {
-    enable_hr: true,
-    denoising_strength: 0.6,
-    hr_upscaler: "Latent (nearest-exact)",
-    hr_second_pass_steps: 20,
-    hr_resize_x: 960,
-    hr_resize_y: 1280,
-    seed: -1,
-    sampler_name: "DPM++ 2M Karras",
-    batch_size: 2,
-    steps: 25,
-    cfg_scale: 7.5,
-    width: 448,
-    height: 640,
-    CLIP_stop_at_last_layers: 2,
-    prompt: prompt,
-    negative_prompt: negativePrompt,
-  };
-
-  for (let i = 0; i < iterations; i++) {
-    if (abort) {
+  const worker = new Worker("queryWorker.js");
+  worker.onmessage = (e) => {
+    if (e.data.action === "start iteration") console.log(e.data.prompt);
+    else if (e.data.action === "download") {
+      let a = document.createElement("a");
+      a.href = e.data.file;
+      a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + e.data.index) + e.data.iterations}.png`;
+      a.click();
+    } else if (e.data.action === "error") console.log(e.data.exception);
+    else if (e.data.action === "end iteration") {
+      document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(i + 1) + "/" + iterations;
+      if (abort) {
+        worker.terminate();
+        downloadCounter++;
+        startNextQuery(queryClass);
+      }
+    } else if (e.data.action === "end query") {
+      worker.terminate();
       downloadCounter++;
       startNextQuery(queryClass);
-      return;
     }
-    prompt = dynamicPrompt(document.querySelector("article." + queryClass + " .prompt").value);
-    negativePrompt = dynamicPrompt(document.querySelector("article." + queryClass + " .negative-prompt").value);
-    payload["prompt"] = prompt;
-    payload["negative_prompt"] = negativePrompt;
-    console.log(payload["prompt"]);
-    const response = await fetch(`${url}/sdapi/v1/txt2img`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const json = await response.json();
-    json.images.forEach((image, index) => {
-      let a = document.createElement("a");
-      a.href = "data:image/png;base64," + image;
-      a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + index) + i}.png`;
-      a.click();
-    });
-    document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(i + 1) + "/" + iterations;
-  }
-  downloadCounter++;
-  startNextQuery(queryClass);
-}
-
-function dynamicPrompt(prompt) {
-  Array.from(prompt.matchAll(/{([^{]+?)}/g)).forEach((group) => {
-    let weightedArray = [];
-    let items = Array.from(group[1].matchAll(/([^\|:]+):?([0-9.]*)/g));
-    if (items.length === 1) {
-      if (items[0][2] && /\S/.test(items[0][2])) items.push(["", "", (1 - parseFloat(items[0][2])).toString()]);
-      else items.push(["", "", "0"]);
-    }
-    items.forEach((item) => {
-      if (item[2] && /\S/.test(item[2])) weightedArray.push(parseFloat(item[2]));
-      else weightedArray.push(1);
-    });
-    prompt = prompt.replace(group[0], items[weightedRandom(weightedArray)][1].trim());
-  });
-  return prompt;
-}
-
-function weightedRandom(weightedArray) {
-  let table = [];
-  for (let i = 0; i < weightedArray.length; i++) {
-    let multiplier = 10 ^ (weightedArray[i] % 1 === 0 ? 0 : weightedArray[i].toString().split(".")[1].length);
-    for (let j = 0; j < weightedArray[i] * multiplier; j++) {
-      table.push(i);
-    }
-  }
-  return table[Math.floor(Math.random() * table.length)];
+  };
+  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
 }
 
 function startNextQuery(queryClass) {
@@ -175,6 +184,6 @@ function startNextQuery(queryClass) {
   if (nextQuery != null) {
     nextQuery.classList.add("running");
     document.querySelector("article." + getClass(nextQuery) + " button").innerHTML = "Stop";
-    createSet(getClass(nextQuery));
+    startQuery(getClass(nextQuery));
   }
 }

@@ -220,7 +220,7 @@ async function loadCSV(path) {
 let allTags = [];
 let autocompleteTextarea;
 
-window.onload = async () => {
+window.addEventListener("load", async () => {
   allTags = await loadCSV("autocomplete/tags1.csv");
 
   const ul = document.createElement("ul");
@@ -239,7 +239,7 @@ window.onload = async () => {
     if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
     else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("empty-autocomplete"));
   });
-};
+});
 
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -317,13 +317,6 @@ function getWord(element) {
 function searchTags(word) {
   let count = 0;
   let results = [];
-  /*const results = allTags.filter((tag) => {
-    if (count < 5 && (tag[0].toLowerCase().includes(word) || tag[3].toLowerCase().includes(word))) {
-      count++;
-      return true;
-    }
-    return false;
-  });*/
 
   for (let i = 0; i < allTags.length; i++) {
     if (count >= 5) break;
