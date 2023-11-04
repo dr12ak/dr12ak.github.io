@@ -144,11 +144,11 @@ async function startQuery(queryClass) {
     else if (e.data.action === "download") {
       let a = document.createElement("a");
       a.href = e.data.file;
-      a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + e.data.index) + e.data.iterations}.png`;
+      a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + e.data.index) + e.data.iteration}.png`;
       a.click();
     } else if (e.data.action === "error") console.log(e.data.exception);
     else if (e.data.action === "end iteration") {
-      document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(i + 1) + "/" + iterations;
+      document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index + 1) + "/" + iterations;
       if (abort) {
         worker.terminate();
         downloadCounter++;
