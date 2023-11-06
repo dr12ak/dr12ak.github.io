@@ -6,6 +6,7 @@
   --border-color: #374151;
   --border-radius: 0.3rem;
   --accent: #0060df;
+  --error: #953d3d;
 }
 
 * {
@@ -35,6 +36,7 @@ body {
 
 header {
   padding: 1rem;
+  font-size: 0.875rem;
 }
 
 nav {
@@ -86,7 +88,10 @@ ul {
 
 svg {
   stroke: var(--primary-text-color);
-  background-color: inherit;
+  fill: var(--primary-text-color);
+  cursor: pointer;
+
+  flex: 0 0 auto;
 }
 #tab-list > li > div {
   display: flex;
@@ -125,10 +130,13 @@ textarea {
   line-height: 1.43;
 }
 
+#tab-settings {
+  margin: 1rem;
+  margin-top: 0;
+}
+
 article {
-  margin-left: 1rem;
   padding: 1rem;
-  margin-right: 1rem;
   border: 1px solid var(--border-color);
   display: none;
 }
@@ -159,6 +167,18 @@ summary {
   font-size: 1rem;
 
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+
+  margin-bottom: 1px;
+}
+
+.progress {
+  width: 3.5rem;
+  text-align: center;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  border: none;
+  outline: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
 }
 
 input {
@@ -172,7 +192,7 @@ header > input {
   width: min(23rem, calc(100% - 3rem));
 }
 
-.controls > button {
+.controls button {
   width: 5rem;
   height: 3rem;
 
@@ -181,15 +201,6 @@ header > input {
   background-color: var(--accent);
 
   cursor: pointer;
-}
-.progress {
-  width: 3.5rem;
-  text-align: center;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
-
-  border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
 }
 
 button.can-stop {
@@ -229,7 +240,7 @@ button.can-stop {
   background-color: var(--primary-background-color);
 }
 
-.empty-autocomplete {
+.hide {
   display: none;
 }
 
@@ -237,4 +248,38 @@ button.can-stop {
   margin-left: 1rem;
   color: var(--secondary-text-color);
   font-weight: normal;
+}
+
+.controls-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.log {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-bottom: -1rem;
+}
+
+.log > li {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0;
+  font-size: 0.8rem;
+  background-color: var(--secondary-background-color);
+}
+
+#premade-tags {
+  position: absolute;
+  border: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
+}
+
+#premade-tags > li {
+  color: var(--primary-text-color);
+  background-color: var(--secondary-background-color);
+  outline: 1px solid var(--border-color);
+  cursor: pointer;
+  border-radius: 0;
 }

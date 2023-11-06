@@ -225,27 +225,23 @@ window.addEventListener("load", async () => {
 
   const ul = document.createElement("ul");
   ul.setAttribute("id", "autocomplete");
-  ul.innerHTML = '<li class="tag-autocomplete empty-autocomplete"></li><li class="tag-autocomplete empty-autocomplete"></li><li class="tag-autocomplete empty-autocomplete"></li><li class="tag-autocomplete empty-autocomplete"></li><li class="tag-autocomplete empty-autocomplete"></li>';
+  ul.innerHTML = '<li class="tag-autocomplete hide"></li><li class="tag-autocomplete hide"></li><li class="tag-autocomplete hide"></li><li class="tag-autocomplete hide"></li><li class="tag-autocomplete hide"></li>';
   document.body.append(ul);
 
   document.querySelector("#tab-settings").addEventListener("input", (event) => {
-    if (event.target.closest("textarea")) onInput(event.target.closest("textarea"), event);
+    if (event.target.closest("textarea")) onInput(event.target.closest("textarea"));
   });
 
   document.querySelector("#tab-settings").addEventListener("keydown", (event) => {
-    if (event.target.closest("textarea")) onKeyDown(event.target.closest("textarea"), event);
+    if (event.target.closest("textarea")) onKeyDown(event);
   });
   document.addEventListener("click", (event) => {
     if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
-    else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("empty-autocomplete"));
+    else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
   });
 });
 
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-
-function onInput(element, event) {
+function onInput(element) {
   autocompleteTextarea = getWord(element);
   let word = autocompleteTextarea.sanitizedWord;
   if (word && /\S/.test(word)) {
@@ -253,8 +249,6 @@ function onInput(element, event) {
     const autocomplete = document.querySelector("#autocomplete");
     autocomplete.style.left = parseInt(element.offsetLeft - element.scrollLeft + caretPosition.left) + "px";
     autocomplete.style.top = parseInt(element.offsetTop - element.scrollTop + caretPosition.top + parseInt(getComputedStyle(element).lineHeight)) + "px";
-
-    //const searchRegex = new RegExp(escapeRegExp(word) + "([^/]*\\/?)", "i");
 
     const results = searchTags(word);
     document.querySelectorAll(".tag-autocomplete").forEach((item, index) => {
@@ -267,13 +261,13 @@ function onInput(element, event) {
           });
         }
         item.innerHTML = innerHTML;
-        item.classList.remove("empty-autocomplete");
+        item.classList.remove("hide");
       } else {
         item.innerHTML = "";
-        item.classList.add("empty-autocomplete");
+        item.classList.add("hide");
       }
     });
-  } else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("empty-autocomplete"));
+  } else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
 }
 
 function nFormatter(num, digits) {
@@ -329,8 +323,8 @@ function searchTags(word) {
   return results;
 }
 
-function onKeyDown(element, event) {
-  if ((event.key === "ArrowDown" || event.key === "ArrowUp") && document.querySelectorAll(".empty-autocomplete").length < document.querySelectorAll(".tag-autocomplete").length) {
+function onKeyDown(event) {
+  if ((event.key === "ArrowDown" || event.key === "ArrowUp") && document.querySelectorAll(".hide").length < document.querySelectorAll(".tag-autocomplete").length) {
     event.preventDefault();
     const items = document.querySelectorAll(".tag-autocomplete");
     let i = -1;
@@ -344,7 +338,7 @@ function onKeyDown(element, event) {
     else if (event.key == "ArrowUp") i--;
     let visibleItems = [];
     for (let i = 0; i < items.length; i++) {
-      if (!items[i].classList.contains("empty-autocomplete")) visibleItems.push(items[i]);
+      if (!items[i].classList.contains("hide")) visibleItems.push(items[i]);
     }
     visibleItems[((i % visibleItems.length) + visibleItems.length) % visibleItems.length].classList.add("selected-tag-autocomplete");
   } else if (event.key === "Enter") {
@@ -370,7 +364,7 @@ function insertTag(element) {
     autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.substring(0, autocompleteTextarea.index) + " " + result + "," + autocompleteTextarea.textarea.value.substring(autocompleteTextarea.index + autocompleteTextarea.originalWord.length);
     autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.replaceAll(",,", ",");
     autocompleteTextarea.textarea.selectionEnd = autocompleteTextarea.index + result.length + 2;
-    document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("empty-autocomplete"));
+    document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
     document.querySelector(".selected-tag-autocomplete").classList.remove("selected-tag-autocomplete");
   }
 }

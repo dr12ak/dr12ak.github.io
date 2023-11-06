@@ -20,8 +20,16 @@ const payload = {
   negative_prompt: "negativePrompt",
 };
 
+let running = false;
+let i = 0;
+let data;
+
 onmessage = (e) => {
-  start(e.data);
+  if (!running) {
+    running = true;
+    data = e.data;
+  }
+  next();
 };
 
 async function start(query) {
@@ -51,9 +59,35 @@ async function start(query) {
   postResponse("end query");
 }
 
-function postResponse(action, index) {
-  if (index) postMessage({ index: index, prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: action });
-  else postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: action });
+async function next() {
+  postResponse("start query");
+  payload["prompt"] = dynamicPrompt(data.prompt);
+  payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
+  postResponse("start iteration");
+  let json;
+  try {
+    const response = await fetch(data.url + "/sdapi/v1/txt2img", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    json = await response.json();
+  } catch (error) {
+    json = null;
+    postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: "error", exception: error.message });
+    postResponse("end iteration");
+    return;
+  }
+  json.images.forEach((image, index) => {
+    postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
+  });
+  i++;
+  postResponse("end iteration");
+  if (i === data.iterations) postResponse("end query");
+}
+
+function postResponse(action) {
+  postMessage({ index: i, prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: action });
 }
 
 function dynamicPrompt(prompt) {
