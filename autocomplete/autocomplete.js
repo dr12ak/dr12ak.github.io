@@ -237,7 +237,11 @@ window.addEventListener("load", async () => {
   });
 
   document.addEventListener("touchend", (event) => {
-    if (document.activeElement.tagName.toLowerCase() === "textarea" && event.target.closest("#autocomplete")) event.preventDefault();
+    if (document.activeElement.tagName.toLowerCase() === "textarea" && event.target.closest("#autocomplete")) {
+      event.preventDefault();
+      if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
+      else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
+    }
   });
 
   document.addEventListener("click", (event) => {
