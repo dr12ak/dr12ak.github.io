@@ -235,11 +235,11 @@ window.addEventListener("load", async () => {
   document.querySelector("#tab-settings").addEventListener("keydown", (event) => {
     if (event.target.closest("textarea")) onKeyDown(event);
   });
-  
+
   document.addEventListener("touchend", (event) => {
-    event.preventDefault();
+    if (document.activeElement.tagName.toLowerCase() === "textarea" && event.target.closest("#autocomplete")) event.preventDefault();
   });
-  
+
   document.addEventListener("click", (event) => {
     if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
     else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
@@ -247,7 +247,7 @@ window.addEventListener("load", async () => {
 });
 
 function onInput(element) {
-  autocompleteTextarea = getWord(element);
+  autocompleteTextarea = getTextarea(element);
   let word = autocompleteTextarea.sanitizedWord;
   if (word && /\S/.test(word)) {
     let caretPosition = getCaretCoordinates(element, element.selectionEnd);
@@ -295,7 +295,7 @@ function nFormatter(num, digits) {
   return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
 
-function getWord(element) {
+function getTextarea(element) {
   let left = element.selectionStart;
   if (element.value[left] === ",") left--;
   while (left >= 0 && element.value[left] !== ",") {
