@@ -235,6 +235,11 @@ window.addEventListener("load", async () => {
   document.querySelector("#tab-settings").addEventListener("keydown", (event) => {
     if (event.target.closest("textarea")) onKeyDown(event);
   });
+  
+  document.addEventListener("touchend", (event) => {
+    event.preventDefault();
+  });
+  
   document.addEventListener("click", (event) => {
     if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
     else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
