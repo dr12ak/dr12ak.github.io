@@ -276,6 +276,7 @@ function onInput(element) {
         item.classList.add("hide");
       }
     });
+    if (autocomplete.getBoundingClientRect().left + autocomplete.getBoundingClientRect().width > window.innerWidth) autocomplete.style.left = parseInt(window.innerWidth - autocomplete.getBoundingClientRect().width) + "px";
   } else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
 }
 
