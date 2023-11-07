@@ -6,7 +6,7 @@
   --border-color: #374151;
   --border-radius: 0.3rem;
   --accent: #0060df;
-  --error: #953d3d;
+  --error: #f44336;
 }
 
 * {
@@ -35,8 +35,60 @@ body {
 }
 
 header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+
   padding: 1rem;
+
   font-size: 0.875rem;
+}
+
+input {
+  border: none;
+  outline: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
+  border-radius: var(--border-radius);
+}
+
+header > input {
+  max-width: 23rem;
+  min-width: 3rem;
+}
+
+#online-indicator {
+  width: 1rem;
+  height: 1rem;
+
+  flex: 0 0 auto;
+  margin-left: auto;
+
+  border-radius: 50%;
+
+  background-color: var(--error);
+}
+
+#online-indicator.online {
+  background-color: var(--accent);
+}
+
+#online-indicator.online > .blink {
+  width: inherit;
+  height: inherit;
+
+  background-color: inherit;
+  opacity: 0.7;
+  border-radius: 50%;
+
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  100% {
+    transform: scale(2, 2);
+    opacity: 0;
+  }
 }
 
 nav {
@@ -181,17 +233,6 @@ summary {
   background-color: var(--secondary-background-color);
 }
 
-input {
-  border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-  border-radius: var(--border-radius);
-}
-
-header > input {
-  width: min(23rem, calc(100% - 3rem));
-}
-
 .controls button {
   width: 5rem;
   height: 3rem;
@@ -268,6 +309,12 @@ button.can-stop {
   border-radius: 0;
   font-size: 0.8rem;
   background-color: var(--secondary-background-color);
+}
+
+.log > li.error {
+  background-color: var(--error);
+  border-left: 0.5rem solid var(--border-color);
+  border-bottom: 0.5rem solid var(--border-color);
 }
 
 #premade-tags {

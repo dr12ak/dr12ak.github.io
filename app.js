@@ -8,6 +8,7 @@ const DEFAULT_NEGATIVE_PROMPT = "(painting by bad-artist-anime:0.9), (painting b
 
 window.addEventListener("load", async () => {
   articleTemplate = document.querySelector("article.q0");
+  setInterval(serverStatus(), 5000);
 
   if (new URLSearchParams(window.location.search).has("safe")) {
     setTimeout(() => {
@@ -174,7 +175,7 @@ async function startQuery(queryClass) {
       a.href = e.data.file;
       a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + e.data.iteration) + e.data.index}.png`;
       a.click();
-    } else if (e.data.action === "error") divLog(e.data.exception, "var(--error)");
+    } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
       if (abort) {
@@ -216,10 +217,10 @@ function startNextQuery(queryClass) {
   }
 }
 
-function divLog(text, color) {
+function divLog(text, textClass) {
   const li = document.createElement("li");
   li.innerHTML = text;
-  if (color != null) li.style.backgroundColor = color;
+  if (textClass != null) li.classList.add("error");
   document.querySelector("article." + getClass(document.querySelector(".running")) + " .log").append(li);
 }
 
@@ -231,11 +232,11 @@ function serverStatus() {
       headers: { "Content-Type": "application/json" },
     })
       .then((response) => {
-        if (response.ok) document.querySelector("#url").style.outlineColor = "var(--accent);";
-        else document.querySelector("#url").style.outlineColor = "var(--error)";
+        if (response.ok) document.querySelector("#online-indicator").classList.add("online");
+        else document.querySelector("#online-indicator").classList.remove("online");
       })
-      .catch((error) => (document.querySelector("#url").style.outlineColor = "var(--error)"));
-  } else document.querySelector("#url").removeAttribute("style");
+      .catch((error) => document.querySelector("#online-indicator").classList.remove("online"));
+  } else document.querySelector("#online-indicator").classList.remove("online");
 }
 
 /*function addPremadeTags(element) {
