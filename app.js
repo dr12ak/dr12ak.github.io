@@ -1,36 +1,22 @@
 let abort = false;
 let downloadCounter = 0;
-let safe = false;
-let articleTemplate;
 
 const DEFAULT_PROMPT = "(masterpiece, best quality, ultra-detailed), (illustration), (beautiful detailed eyes), (very detailed face), (1girl), (solo), (depth of field), bokeh, light smile, full-face blush, (open mouth:0.6), sweat, sweatdrop, thighs, looking at viewer, sunlight, dappled sunlight, (large breasts:1), ";
 const DEFAULT_NEGATIVE_PROMPT = "(painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), bad-hands-5, watermark, text, error, blurry, jpeg artifacts, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, low quality:1.4), bad anatomy, ((cleavage)), (collar), (seiza), (wariza), badhandv4";
 
 window.addEventListener("load", async () => {
-  articleTemplate = document.querySelector("article.q0");
-  setInterval(serverStatus, 5000);
-
+  document.querySelectorAll("noscript").forEach((noscript) => noscript.remove());
   if (new URLSearchParams(window.location.search).has("safe")) {
     setTimeout(() => {
       document.querySelector("#autocomplete").style.display = "none";
     }, 1000);
     document.querySelector("header").style.display = "none";
-    document.querySelector("#tab-settings").setAttribute("safe", "true");
-    safe = true;
-  }
+    document.querySelector("#tab-settings").classList.add("safe");
+  } else setInterval(serverStatus, 5000);
 
-  document.querySelectorAll(".q0").forEach((queryItem) => queryItem.remove());
-  if (localStorage.length === 0) localStorage.setItem("q0", JSON.stringify({ prompt: safe ? "" : DEFAULT_PROMPT, negativePrompt: safe ? "" : DEFAULT_NEGATIVE_PROMPT, timestamp: new Date().getTime() }));
+  loadPreviousTabs();
 
-  let localStorageArray = new Array();
-  for (let i = 0; i < localStorage.length; i++) {
-    localStorageArray[i] = { key: localStorage.key(i), timestamp: JSON.parse(localStorage.getItem(localStorage.key(i))).timestamp };
-  }
-  localStorageArray.sort((a, b) => a.timestamp - b.timestamp);
-  localStorageArray.forEach((localStorageItem) => {
-    addTab(localStorageItem.key.substring(1));
-    loadTab(localStorageItem.key);
-  });
+  if (localStorage.length === 0) addNewTab();
 
   document.querySelectorAll("." + getClass(document.querySelector("#tab-settings").firstElementChild)).forEach((queryItem) => queryItem.classList.add("active"));
 });
@@ -39,11 +25,41 @@ function getClass(element) {
   return element.className.split(" ")[0];
 }
 
-function focusTab(element) {
-  if (!element.classList.contains("removed")) {
-    document.querySelectorAll(".active").forEach((element) => element.classList.remove("active"));
-    document.querySelectorAll("." + getClass(element)).forEach((element) => element.classList.add("active"));
+function loadPreviousTabs() {
+  const localStorageArray = new Array();
+  for (let i = 0; i < localStorage.length; i++) {
+    localStorageItem = JSON.parse(localStorage.getItem(localStorage.key(i)));
+    localStorageArray[i] = { key: localStorage.key(i), prompt: localStorageItem.prompt, negativePrompt: localStorageItem.negativePrompt, timestamp: localStorageItem.timestamp };
   }
+  localStorageArray.sort((a, b) => a.timestamp - b.timestamp);
+  localStorageArray.forEach((localStorageItem) => {
+    addTab(localStorageItem.key.substring(1), localStorageItem.prompt, localStorageItem.negativePrompt); // key.substring(1) => q<number>
+  });
+}
+
+function loadTab(queryClass) {
+  const storedTab = JSON.parse(localStorage.getItem(queryClass));
+  if (storedTab != null) {
+    document.querySelector("." + queryClass + " .prompt").value = storedTab.prompt;
+    document.querySelector("." + queryClass + " .negative-prompt").value = storedTab.negativePrompt;
+  }
+}
+
+function saveTab(queryClass) {
+  if (localStorage.getItem(queryClass) != null) localStorage.setItem(queryClass, JSON.stringify({ prompt: document.querySelector("." + queryClass + " .prompt").value, negativePrompt: document.querySelector("." + queryClass + " .negative-prompt").value, timestamp: JSON.parse(localStorage.getItem(queryClass)).timestamp }));
+  else localStorage.setItem(queryClass, JSON.stringify({ prompt: document.querySelector("." + queryClass + " .prompt").value, negativePrompt: document.querySelector("." + queryClass + " .negative-prompt").value, timestamp: new Date().getTime() }));
+}
+
+function addNewTab() {
+  if (document.querySelector("#tab-settings").classList.contains("safe")) addTab(nextTabIndex(), "", "");
+  else addTab(nextTabIndex(), DEFAULT_PROMPT, DEFAULT_NEGATIVE_PROMPT);
+}
+
+function addTab(tabIndex, prompt, negativePrompt) {
+  document.querySelector("ul").append(createLi(tabIndex));
+  document.querySelector("#tab-settings").append(createArticle(tabIndex, prompt, negativePrompt));
+
+  saveTab("q" + tabIndex);
 }
 
 function nextTabIndex() {
@@ -51,6 +67,52 @@ function nextTabIndex() {
   while (true) {
     if (document.querySelector("#tab-settings > .q" + i) == null) return i;
     i++;
+  }
+}
+
+function createLi(index) {
+  const li = document.createElement("li");
+  li.classList.add("q" + index);
+  li.dataset.order = "-1";
+  li.setAttribute("onclick", "focusTab(this);");
+  li.innerHTML = `
+  query${index}
+  <div onclick="closeTab(this)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100">
+      <path d="M10 10 90 90 M90 10 10 90" stroke-width="20" />
+    </svg>
+  </div>`;
+  return li;
+}
+
+function createArticle(index, prompt, negativePrompt) {
+  const article = document.createElement("article");
+  article.classList.add("q" + index);
+  article.innerHTML = `
+  <textarea class="prompt" oninput="saveTab(getClass(this.closest('article')));" rows="10" spellcheck="false">${prompt != null ? prompt : ""}</textarea>
+  <div class="controls">
+    <div class="controls-option">
+      <button onclick="queueQuery(this);">Start</button>
+    </div>
+    <div class="controls-info">
+      <input class="iterations" type="number" min="1" max="100" step="1" value="20" />
+      <div class="progress">0/0</div>
+    </div>
+  </div>
+  <details>
+    <summary>Negative Prompt</summary>
+    <textarea class="negative-prompt" oninput="saveTab(getClass(this.closest('article')));" rows="5" spellcheck="false">${negativePrompt != null ? negativePrompt : ""}</textarea>
+  </details>
+  <ul class="log"></ul>`;
+  article.querySelector(".prompt").value = prompt;
+  article.querySelector(".negative-prompt").value = negativePrompt;
+  return article;
+}
+
+function focusTab(element) {
+  if (!element.classList.contains("removed")) {
+    document.querySelectorAll(".active").forEach((element) => element.classList.remove("active"));
+    document.querySelectorAll("." + getClass(element)).forEach((element) => element.classList.add("active"));
   }
 }
 
@@ -68,50 +130,6 @@ function closeTab(element) {
     }
     element.classList.add("removed");
     localStorage.removeItem(getClass(element));
-  }
-}
-function addTab(tabIndex) {
-  if (tabIndex == null) tabIndex = nextTabIndex();
-  const tab = document.createElement("li");
-  tab.classList.add("q" + tabIndex);
-  tab.dataset.order = "-1";
-  tab.setAttribute("onclick", "focusTab(this);");
-  tab.innerHTML = "query" + tabIndex + '<div onclick="closeTab(this)"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100"><path d="M10 10 90 90 M90 10 10 90" stroke-width="20" /></svg></div>';
-  document.querySelector("ul").append(tab);
-
-  let prompt = safe ? "" : DEFAULT_PROMPT;
-  let negativePrompt = safe ? "" : DEFAULT_NEGATIVE_PROMPT;
-  if (localStorage.getItem("q" + tabIndex) != null) {
-    prompt = JSON.parse(localStorage.getItem("q" + tabIndex)).prompt;
-    negativePrompt = JSON.parse(localStorage.getItem("q" + tabIndex)).negativePrompt;
-  }
-
-  const article = document.createElement("article");
-  article.classList.add("q" + tabIndex);
-  //article.innerHTML = '<textarea class="prompt" rows="10" spellcheck="false">' + prompt + '</textarea><div class="controls"><div class="controls-option"><button onclick="queueQuery(this);">Start</button><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm120-160v-80h320v80H320Zm0-120v-80h320v80H320Zm0-120v-80h320v80H320Zm360-80v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z"/></svg></div><div class="controls-info"><input class="iterations" type="number" min="1" max="100" step="1" value="20" /><div class="progress">0/0</div></div></div><details><summary>Negative Prompt</summary><textarea class="negative-prompt" rows="5" spellcheck="false">' + negativePrompt + "</textarea></details>";
-  article.innerHTML = articleTemplate.innerHTML;
-  article.querySelector(".prompt").value = prompt;
-  article.querySelector(".negative-prompt").value = negativePrompt;
-  document.querySelector("#tab-settings").append(article);
-
-  if (safe) {
-    document.querySelector(".q" + tabIndex + " .controls").style.display = "none";
-    document.querySelector(".q" + tabIndex + " details").style.display = "none";
-  }
-
-  saveTab("q" + tabIndex);
-}
-
-function saveTab(queryClass) {
-  if (localStorage.getItem(queryClass) != null) localStorage.setItem(queryClass, JSON.stringify({ prompt: document.querySelector("." + queryClass + " .prompt").value, negativePrompt: document.querySelector("." + queryClass + " .negative-prompt").value, timestamp: JSON.parse(localStorage.getItem(queryClass)).timestamp }));
-  else localStorage.setItem(queryClass, JSON.stringify({ prompt: document.querySelector("." + queryClass + " .prompt").value, negativePrompt: document.querySelector("." + queryClass + " .negative-prompt").value, timestamp: new Date().getTime() }));
-}
-
-function loadTab(queryClass) {
-  const storedTab = JSON.parse(localStorage.getItem(queryClass));
-  if (storedTab != null) {
-    document.querySelector("." + queryClass + " .prompt").value = storedTab.prompt;
-    document.querySelector("." + queryClass + " .negative-prompt").value = storedTab.negativePrompt;
   }
 }
 
