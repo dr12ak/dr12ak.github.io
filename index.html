@@ -14,9 +14,8 @@
   </head>
   <body>
     <header>
-      <span>URL:</span>
-      <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" placeholder="URL" />
       <div id="online-indicator"><div class="blink"></div></div>
+      <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" placeholder="URL" />
     </header>
     <nav>
       <div id="add-tab" onclick="addTab();">
@@ -41,11 +40,7 @@
         <div class="controls">
           <div class="controls-option">
             <button onclick="queueQuery(this);">Start</button>
-            <!-- <div onclick="addPremadeTags(this);">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-240h80v-120h120v-80H520v-120h-80v120H320v80h120v120ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" /></svg>
-            </div> -->
           </div>
-          <audio src="silence.m4a" controls></audio>
           <div class="controls-info">
             <input class="iterations" type="number" min="1" max="100" step="1" value="20" />
             <div class="progress">0/0</div>
@@ -58,9 +53,5 @@
         <ul class="log"></ul>
       </article>
     </main>
-    <!-- <ul id="premade-tags" class="hide" onclick="appendPremadeTag(event);">
-      <li>{sitting|standing}</li>
-      <li>{(arms behind back)|(arms behind head)}</li>
-    </ul> -->
   </body>
 </html>

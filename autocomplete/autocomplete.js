@@ -213,10 +213,10 @@ async function loadCSV(path) {
 /*
 
 
+  autocomplete div
 
 
 */
-// autocomplete div
 let allTags = [];
 let autocompleteTextarea;
 
@@ -250,6 +250,17 @@ window.addEventListener("load", async () => {
   });
 });
 
+const loraAutocomplete = (function () {
+  let executed = false;
+  return async function () {
+    if (!executed) {
+      executed = true;
+      const loras = await (await fetch(getURL() + "/sdapi/v1/loras", { method: "GET", headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "skip-browser-warning" } })).json();
+      loras.forEach((lora) => allTags.push(["<lora:" + lora.name + ":1>", "2", "0", lora.name + "," + lora.alias]));
+    }
+  };
+})();
+
 function onInput(element) {
   autocompleteTextarea = getTextarea(element);
   let word = autocompleteTextarea.sanitizedWord;
@@ -263,10 +274,10 @@ function onInput(element) {
     document.querySelectorAll(".tag-autocomplete").forEach((item, index) => {
       if (results.length > index) {
         let innerHTML;
-        if (results[index][0].includes(word)) innerHTML = results[index][0] + '<span class="tag-popularity">' + nFormatter(results[index][2], 0) + "</span>";
+        if (results[index][0].toLowerCase().includes(word)) innerHTML = encodeHTML(results[index][0]) + '<span class="tag-popularity">' + nFormatter(results[index][2], 0) + "</span>";
         else {
           results[index][3].split(",").forEach((alternativeTag) => {
-            if (alternativeTag.includes(word)) innerHTML = alternativeTag + " → " + results[index][0] + '<span class="tag-popularity">' + nFormatter(results[index][2], 0) + "</span>";
+            if (alternativeTag.toLowerCase().includes(word)) innerHTML = encodeHTML(alternativeTag) + " → " + encodeHTML(results[index][0]) + '<span class="tag-popularity">' + nFormatter(results[index][2], 0) + "</span>";
           });
         }
         item.innerHTML = innerHTML;
@@ -281,6 +292,7 @@ function onInput(element) {
 }
 
 function nFormatter(num, digits) {
+  if (num === "0") return "";
   const lookup = [
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "k" },
@@ -313,7 +325,7 @@ function getTextarea(element) {
   }
 
   let originalWord = element.value.substring(left + 1, right);
-  let sanitizedWord = originalWord.trim().replaceAll(" ", "_").replaceAll("\\(", "(").replaceAll("\\)", ")").replaceAll("\\[", "[").replaceAll("\\]", "]");
+  let sanitizedWord = originalWord.trim().replaceAll(" ", "_").replaceAll("\\(", "(").replaceAll("\\)", ")").replaceAll("\\[", "[").replaceAll("\\]", "]").toLowerCase();
 
   return { textarea: element, originalWord: originalWord, sanitizedWord: sanitizedWord, index: left + 1 };
 }
@@ -375,6 +387,7 @@ function insertTag(element) {
     autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.replaceAll(",,", ",");
     autocompleteTextarea.textarea.selectionEnd = autocompleteTextarea.index + result.length + 2;
     document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
-    document.querySelector(".selected-tag-autocomplete").classList.remove("selected-tag-autocomplete");
+    selectedTag = document.querySelector(".selected-tag-autocomplete");
+    if (selectedTag != null) selectedTag.classList.remove("selected-tag-autocomplete");
   }
 }

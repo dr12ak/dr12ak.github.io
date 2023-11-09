@@ -38,10 +38,9 @@ header {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 
   padding: 1rem;
-
   font-size: 0.875rem;
 }
 
@@ -60,9 +59,7 @@ header > input {
 #online-indicator {
   width: 1rem;
   height: 1rem;
-
   flex: 0 0 auto;
-  margin-left: auto;
 
   border-radius: 50%;
 
@@ -291,6 +288,10 @@ button.can-stop {
   font-weight: normal;
 }
 
+.tag-popularity:empty {
+  margin-left: 0;
+}
+
 .controls-option {
   display: flex;
   align-items: center;
@@ -309,6 +310,13 @@ button.can-stop {
   border-radius: 0;
   font-size: 0.8rem;
   background-color: var(--secondary-background-color);
+
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 .log > li.error {

@@ -8,7 +8,7 @@ const DEFAULT_NEGATIVE_PROMPT = "(painting by bad-artist-anime:0.9), (painting b
 
 window.addEventListener("load", async () => {
   articleTemplate = document.querySelector("article.q0");
-  setInterval(serverStatus(), 5000);
+  setInterval(serverStatus, 5000);
 
   if (new URLSearchParams(window.location.search).has("safe")) {
     setTimeout(() => {
@@ -18,10 +18,6 @@ window.addEventListener("load", async () => {
     document.querySelector("#tab-settings").setAttribute("safe", "true");
     safe = true;
   }
-
-  /*document.querySelector("#tab-settings").addEventListener("change", (event) => {
-    if (event.target.closest("textarea")) saveTab(getClass(event.target.closest("article")), event);
-  });*/
 
   document.querySelectorAll(".q0").forEach((queryItem) => queryItem.remove());
   if (localStorage.length === 0) localStorage.setItem("q0", JSON.stringify({ prompt: safe ? "" : DEFAULT_PROMPT, negativePrompt: safe ? "" : DEFAULT_NEGATIVE_PROMPT, timestamp: new Date().getTime() }));
@@ -159,6 +155,15 @@ function getURL() {
   return url[url.length - 1] === "/" ? url.slice(0, -1) : url;
 }
 
+async function dataURIToBlob(dataURI) {
+  const blob = await (await fetch(dataURI)).blob();
+  return URL.createObjectURL(blob);
+}
+
+function imageName(iteration) {
+  return String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + iteration) + "_" + new Date() + ".png";
+}
+
 async function startQuery(queryClass) {
   const url = getURL();
   const iterations = parseInt(document.querySelector("article." + queryClass + " .iterations").value);
@@ -168,13 +173,17 @@ async function startQuery(queryClass) {
   document.querySelector("article." + queryClass + " .log").innerHTML = "";
 
   const worker = new Worker("queryWorker.js");
-  worker.onmessage = (e) => {
+  worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      let a = document.createElement("a");
-      a.href = e.data.file;
-      a.download = `${String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + e.data.iteration) + e.data.index}.png`;
-      a.click();
+      if (navigator.userAgent.indexOf("gonative") > -1 || navigator.userAgent.indexOf("median") > -1) {
+        gonative.share.downloadFile({ url: await dataURIToBlob(e.data.file) });
+      } else {
+        let a = document.createElement("a");
+        a.href = e.data.file;
+        a.download = imageName(e.data.iteration);
+        a.click();
+      }
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
@@ -219,11 +228,10 @@ function startNextQuery(queryClass) {
 
 function divLog(text, textClass) {
   const li = document.createElement("li");
-  li.innerHTML = text;
+  li.innerHTML = encodeHTML(text);
   if (textClass != null) li.classList.add("error");
   document.querySelector("article." + getClass(document.querySelector(".running")) + " .log").append(li);
 }
-
 function serverStatus() {
   const url = getURL();
   if (url && /\S/.test(url)) {
@@ -232,20 +240,28 @@ function serverStatus() {
       headers: { "Content-Type": "application/json" },
     })
       .then((response) => {
-        if (response.ok) document.querySelector("#online-indicator").classList.add("online");
-        else document.querySelector("#online-indicator").classList.remove("online");
+        if (response.ok) {
+          document.querySelector("#online-indicator").classList.add("online");
+          loraAutocomplete();
+        } else document.querySelector("#online-indicator").classList.remove("online");
       })
       .catch((error) => document.querySelector("#online-indicator").classList.remove("online"));
   } else document.querySelector("#online-indicator").classList.remove("online");
 }
 
-/*function addPremadeTags(element) {
-  document.querySelector("#premade-tags").classList.toggle("hide");
-  const rect = element.getBoundingClientRect();
-  document.querySelector("#premade-tags").style.top = rect.top + "px";
-  document.querySelector("#premade-tags").style.left = parseInt(rect.left + rect.width) + "px";
+function encodeHTML(text) {
+  return text.replace(/[&"'\<\>]/g, function (c) {
+    switch (c) {
+      case "&":
+        return "&amp;";
+      case "'":
+        return "&#39;";
+      case '"':
+        return "&quot;";
+      case "<":
+        return "&lt;";
+      default:
+        return "&gt;";
+    }
+  });
 }
-
-function appendPremadeTag(event) {
-  event.closest("li");
-}*/

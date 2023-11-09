@@ -1,13 +1,11 @@
 const payload = {
-  sd_model_checkpoint: "model.safetensors",
-  sd_vae: "model.vae.pt",
+  //sd_model_checkpoint: "model.safetensors",
   enable_hr: true,
   denoising_strength: 0.6,
   hr_upscaler: "Latent (nearest-exact)",
   hr_second_pass_steps: 20,
   hr_resize_x: 960,
   hr_resize_y: 1280,
-  eta: 31337,
   seed: -1,
   sampler_name: "DPM++ 2M Karras",
   batch_size: 2,
@@ -15,9 +13,14 @@ const payload = {
   cfg_scale: 7.5,
   width: 448,
   height: 640,
-  CLIP_stop_at_last_layers: 2,
   prompt: "prompt",
   negative_prompt: "negativePrompt",
+  override_settings: {
+    CLIP_stop_at_last_layers: 2,
+    sd_vae: "model.vae.pt",
+    eta_noise_seed_delta: 31337,
+  },
+  override_settings_restore_afterwards: false,
 };
 
 let running = false;
@@ -90,20 +93,44 @@ function postResponse(action) {
   postMessage({ index: i, prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: action });
 }
 
-function dynamicPrompt(prompt) {
-  Array.from(prompt.matchAll(/{([^{]+?)}/g)).forEach((group) => {
-    let weightedArray = [];
-    let items = Array.from(group[1].matchAll(/([^\|:]+):?([0-9.]*)/g));
-    if (items.length === 1) {
-      if (items[0][2] && /\S/.test(items[0][2])) items.push(["", "", (1 - parseFloat(items[0][2])).toString()]);
-      else items.push(["", "", "0"]);
-    }
-    items.forEach((item) => {
-      if (item[2] && /\S/.test(item[2])) weightedArray.push(parseFloat(item[2]));
-      else weightedArray.push(1);
+/*function dynamicPrompt(prompt) {
+  while (/{([^{]+?)}/g.test(prompt)) {
+    Array.from(prompt.matchAll(/{([^{]+?)}/g)).forEach((group) => {
+      let weightedArray = [];
+      let items = Array.from(group[1].matchAll(/([^\|:]+):?([0-9.]*)/g));
+      if (items.length === 1) {
+        if (items[0][2] && /\S/.test(items[0][2])) items.push(["", "", (1 - parseFloat(items[0][2])).toString()]);
+        else items.push(["", "", "0"]);
+      }
+      items.forEach((item) => {
+        if (item[2] && /\S/.test(item[2])) weightedArray.push(parseFloat(item[2]));
+        else weightedArray.push(1);
+      });
+      prompt = prompt.replace(group[0], items[weightedRandom(weightedArray)][1].trim());
     });
-    prompt = prompt.replace(group[0], items[weightedRandom(weightedArray)][1].trim());
-  });
+  }
+  return prompt;
+}*/
+
+function dynamicPrompt(prompt) {
+  // /{([^{}]*(?:{[^{}]*(?:{[^{}]*}[^{}]*)*}[^{}]*)*)}/g 2 level depth braces
+  while (/{([^{}]*(?:{[^{}]*(?:{[^{}]*}[^{}]*)*}[^{}]*)*)}/g.test(prompt)) {
+    Array.from(prompt.matchAll(/{([^{}]*(?:{[^{}]*(?:{[^{}]*}[^{}]*)*}[^{}]*)*)}/g)).forEach((group) => {
+      let weightedArray = [];
+
+      let items = Array.from(group[1].matchAll(/([^|]+)/g));
+      if (!group[1].includes("|")) items = Array.from(group[1].matchAll(/([^|:]+):?([0-9.]*)/g));
+      if (items.length === 1) {
+        if (items[0][2] && /\S/.test(items[0][2])) items.push(["", "", (1 - parseFloat(items[0][2])).toString()]);
+        else items.push(["", "", "0"]);
+      }
+      items.forEach((item) => {
+        if (item[2] && /\S/.test(item[2])) weightedArray.push(parseFloat(item[2]));
+        else weightedArray.push(1);
+      });
+      prompt = prompt.replace(group[0], items[weightedRandom(weightedArray)][1].trim());
+    });
+  }
   return prompt;
 }
 
