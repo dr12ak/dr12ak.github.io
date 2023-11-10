@@ -174,10 +174,9 @@ function getURL() {
   return url[url.length - 1] === "/" ? url.slice(0, -1) : url;
 }
 
-async function dataURIToFile(dataURI, filename) {
+async function dataURIToFile(dataURI) {
   const blob = await (await fetch(dataURI)).blob();
-  const file = new File([blob], filename);
-  return URL.createObjectURL(file);
+  return URL.createObjectURL(blob);
 }
 
 function imageName(iteration) {
@@ -201,7 +200,7 @@ async function startQuery(queryClass) {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
       if (isApp()) {
-        const url = await dataURIToFile(e.data.file, imageName(e.data.iteration));
+        const url = await dataURIToFile(e.data.file);
         divLog(url);
         gonative.share.downloadFile({ url: url });
       } else {
