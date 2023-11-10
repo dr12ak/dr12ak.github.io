@@ -206,7 +206,6 @@ async function startQuery(queryClass) {
           const imageURL = await dataURIToBlob(dataURI);
           divLog(imageURL);
           gonative.share.downloadFile({ url: imageURL });
-          URL.revokeObjectURL(imageURL);
         } else {
           let a = document.createElement("a");
           a.href = dataURI;
