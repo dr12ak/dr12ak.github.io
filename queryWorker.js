@@ -45,6 +45,7 @@ async function start(query) {
     payload["negative_prompt"] = dynamicPrompt(query.negativePrompt);
     postResponse("start iteration", i);
     if (query.isApp) {
+      await new Promise((r) => setTimeout(r, 10000));
       postMessage({ index: i, iteration: 0, action: "download", file: testImage });
     } else {
       let json;
