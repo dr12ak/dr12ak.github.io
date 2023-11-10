@@ -75,23 +75,27 @@ async function next() {
   payload["prompt"] = dynamicPrompt(data.prompt);
   payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
   postResponse("start iteration");
-  let json;
-  try {
-    const response = await fetch(data.url + "/sdapi/v1/txt2img", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+  if (isApp()) {
+    postMessage({ index: i, iteration: 0, action: "download", file: testImage });
+  } else {
+    let json;
+    try {
+      const response = await fetch(data.url + "/sdapi/v1/txt2img", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      json = await response.json();
+    } catch (error) {
+      json = null;
+      postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: "error", exception: error.message });
+      postResponse("end iteration");
+      return;
+    }
+    json.images.forEach((image, index) => {
+      postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
     });
-    json = await response.json();
-  } catch (error) {
-    json = null;
-    postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: "error", exception: error.message });
-    postResponse("end iteration");
-    return;
   }
-  json.images.forEach((image, index) => {
-    postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
-  });
   i++;
   postResponse("end iteration");
   if (i === data.iterations) postResponse("end query");
@@ -100,25 +104,6 @@ async function next() {
 function postResponse(action) {
   postMessage({ index: i, prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: action });
 }
-
-/*function dynamicPrompt(prompt) {
-  while (/{([^{]+?)}/g.test(prompt)) {
-    Array.from(prompt.matchAll(/{([^{]+?)}/g)).forEach((group) => {
-      let weightedArray = [];
-      let items = Array.from(group[1].matchAll(/([^\|:]+):?([0-9.]*)/g));
-      if (items.length === 1) {
-        if (items[0][2] && /\S/.test(items[0][2])) items.push(["", "", (1 - parseFloat(items[0][2])).toString()]);
-        else items.push(["", "", "0"]);
-      }
-      items.forEach((item) => {
-        if (item[2] && /\S/.test(item[2])) weightedArray.push(parseFloat(item[2]));
-        else weightedArray.push(1);
-      });
-      prompt = prompt.replace(group[0], items[weightedRandom(weightedArray)][1].trim());
-    });
-  }
-  return prompt;
-}*/
 
 function dynamicPrompt(prompt) {
   // /{([^{}]*(?:{[^{}]*(?:{[^{}]*}[^{}]*)*}[^{}]*)*)}/g 2 level depth braces
