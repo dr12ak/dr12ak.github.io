@@ -38,45 +38,13 @@ onmessage = (e) => {
   next();
 };
 
-async function start(query) {
-  postResponse("start query");
-  for (let i = 0; i < query.iterations; i++) {
-    payload["prompt"] = dynamicPrompt(query.prompt);
-    payload["negative_prompt"] = dynamicPrompt(query.negativePrompt);
-    postResponse("start iteration", i);
-    if (query.isApp) {
-      await new Promise((r) => setTimeout(r, 10000));
-      postMessage({ index: i, iteration: 0, action: "download", file: testImage });
-    } else {
-      let json;
-      while (json == null)
-        try {
-          const response = await fetch(query.url + "/sdapi/v1/txt2img", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          json = await response.json();
-        } catch (error) {
-          json = null;
-          postMessage({ prompt: payload["prompt"], negativePrompt: payload["negative_prompt"], action: "error", exception: error.message });
-        }
-      json.images.forEach((image, index) => {
-        postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
-      });
-    }
-
-    postResponse("end iteration", i);
-  }
-  postResponse("end query");
-}
-
 async function next() {
   postResponse("start query");
   payload["prompt"] = dynamicPrompt(data.prompt);
   payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
   postResponse("start iteration");
   if (data.isApp) {
+    await new Promise((r) => setTimeout(r, 10000));
     postMessage({ index: i, iteration: 0, action: "download", file: testImage });
   } else {
     let json;
