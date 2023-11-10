@@ -53,7 +53,7 @@ function saveTab(queryClass) {
 
 function addNewTab() {
   if (document.querySelector("#tab-settings").classList.contains("safe")) addTab(nextTabIndex(), "", "");
-  else addTab(nextTabIndex(), navigator.userAgent, DEFAULT_NEGATIVE_PROMPT);
+  else addTab(nextTabIndex(), DEFAULT_PROMPT, DEFAULT_NEGATIVE_PROMPT);
 }
 
 function addTab(tabIndex, prompt, negativePrompt) {
@@ -200,8 +200,11 @@ async function startQuery(queryClass) {
   worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      if (isApp()) gonative.share.downloadFile({ url: await dataURIToFile(e.data.file, imageName(e.data.iteration)) });
-      else {
+      if (isApp()) {
+        const url = await dataURIToFile(e.data.file, imageName(e.data.iteration));
+        divLog(url);
+        gonative.share.downloadFile({ url: url });
+      } else {
         let a = document.createElement("a");
         a.href = e.data.file;
         a.download = imageName(e.data.iteration);
