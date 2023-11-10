@@ -181,7 +181,7 @@ async function dataURIToFile(dataURI, filename) {
 }
 
 function imageName(iteration) {
-  return String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + iteration) + "_" + new Date() + ".png";
+  return String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + iteration) + "_" + new Date().getTime() + ".png";
 }
 
 function isApp() {
