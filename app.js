@@ -6,6 +6,7 @@ const DEFAULT_NEGATIVE_PROMPT = "(painting by bad-artist-anime:0.9), (painting b
 
 window.addEventListener("load", async () => {
   document.querySelectorAll("noscript").forEach((noscript) => noscript.remove());
+
   if (new URLSearchParams(window.location.search).has("safe")) {
     setTimeout(() => {
       document.querySelector("#autocomplete").style.display = "none";
@@ -16,7 +17,7 @@ window.addEventListener("load", async () => {
 
   loadPreviousTabs();
 
-  if (localStorage.length === 0) addNewTab();
+  if (document.querySelector("#tab-list").children.length === 0) addNewTab();
 
   document.querySelectorAll("." + getClass(document.querySelector("#tab-settings").firstElementChild)).forEach((queryItem) => queryItem.classList.add("active"));
 });
@@ -173,13 +174,18 @@ function getURL() {
   return url[url.length - 1] === "/" ? url.slice(0, -1) : url;
 }
 
-async function dataURIToBlob(dataURI) {
+async function dataURIToFile(dataURI, filename) {
   const blob = await (await fetch(dataURI)).blob();
-  return URL.createObjectURL(blob);
+  const file = new File([blob], filename);
+  return URL.createObjectURL(file);
 }
 
 function imageName(iteration) {
   return String.fromCharCode("a".charCodeAt(0) + downloadCounter) + String.fromCharCode("a".charCodeAt(0) + iteration) + "_" + new Date() + ".png";
+}
+
+function isApp() {
+  return navigator.userAgent.indexOf("gonative") > -1 || navigator.userAgent.indexOf("median") > -1;
 }
 
 async function startQuery(queryClass) {
@@ -194,9 +200,8 @@ async function startQuery(queryClass) {
   worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      if (navigator.userAgent.indexOf("gonative") > -1 || navigator.userAgent.indexOf("median") > -1) {
-        gonative.share.downloadFile({ url: await dataURIToBlob(e.data.file) });
-      } else {
+      if (isApp()) gonative.share.downloadFile({ url: await dataURIToFile(e.data.file, imageName(e.data.iteration)) });
+      else {
         let a = document.createElement("a");
         a.href = e.data.file;
         a.download = imageName(e.data.iteration);
