@@ -45,7 +45,7 @@ async function next() {
   postResponse("start iteration");
   if (data.isApp) {
     await new Promise((r) => setTimeout(r, 10000));
-    postMessage({ index: i, iteration: 0, action: "download", file: testImage });
+    postMessage({ index: i, iteration: 0, action: "download", images: [testImage] });
   } else {
     let json;
     try {
@@ -61,9 +61,10 @@ async function next() {
       postResponse("end iteration");
       return;
     }
-    json.images.forEach((image, index) => {
+    postMessage({ index: i, iteration: index, action: "download", images: json.images });
+    /*json.images.forEach((image, index) => {
       postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
-    });
+    });*/
   }
   i++;
   postResponse("end iteration");

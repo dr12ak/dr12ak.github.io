@@ -174,7 +174,7 @@ function getURL() {
   return url[url.length - 1] === "/" ? url.slice(0, -1) : url;
 }
 
-async function dataURIToFile(dataURI) {
+async function dataURIToBlob(dataURI) {
   const blob = await (await fetch(dataURI)).blob();
   return URL.createObjectURL(blob);
 }
@@ -196,19 +196,24 @@ async function startQuery(queryClass) {
   document.querySelector("article." + queryClass + " .log").innerHTML = "";
 
   const worker = new Worker("queryWorker.js");
-  worker.onmessage = async (e) => {
+
+  worker.onmessage = (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      if (isApp()) {
-        const url = await dataURIToFile(e.data.file);
-        divLog(url);
-        gonative.share.downloadFile({ url: url });
-      } else {
-        let a = document.createElement("a");
-        a.href = e.data.file;
-        a.download = imageName(e.data.iteration);
-        a.click();
-      }
+      e.data.images.forEach(async (image, index) => {
+        const dataURI = "data:image/png;base64," + image;
+        if (isApp()) {
+          const imageURL = await dataURIToBlob(dataURI);
+          divLog(imageURL);
+          gonative.share.downloadFile({ url: imageURL });
+          URL.revokeObjectURL(imageURL);
+        } else {
+          let a = document.createElement("a");
+          a.href = dataURI;
+          a.download = imageName(index);
+          a.click();
+        }
+      });
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
