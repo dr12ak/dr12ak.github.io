@@ -53,7 +53,7 @@ function saveTab(queryClass) {
 
 function addNewTab() {
   if (document.querySelector("#tab-settings").classList.contains("safe")) addTab(nextTabIndex(), "", "");
-  else addTab(nextTabIndex(), DEFAULT_PROMPT, DEFAULT_NEGATIVE_PROMPT);
+  else addTab(nextTabIndex(), navigator.userAgent, DEFAULT_NEGATIVE_PROMPT);
 }
 
 function addTab(tabIndex, prompt, negativePrompt) {
