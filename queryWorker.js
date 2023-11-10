@@ -44,7 +44,7 @@ async function start(query) {
     payload["prompt"] = dynamicPrompt(query.prompt);
     payload["negative_prompt"] = dynamicPrompt(query.negativePrompt);
     postResponse("start iteration", i);
-    if (isApp()) {
+    if (query.isApp) {
       postMessage({ index: i, iteration: 0, action: "download", file: testImage });
     } else {
       let json;
@@ -75,7 +75,7 @@ async function next() {
   payload["prompt"] = dynamicPrompt(data.prompt);
   payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
   postResponse("start iteration");
-  if (isApp()) {
+  if (data.isApp) {
     postMessage({ index: i, iteration: 0, action: "download", file: testImage });
   } else {
     let json;

@@ -224,7 +224,7 @@ async function startQuery(queryClass) {
       startNextQuery(queryClass);
     }
   };
-  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
+  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations, isApp: isApp() });
 }
 
 function startNextQuery(queryClass) {
