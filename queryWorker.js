@@ -54,7 +54,7 @@ async function next() {
     postResponse("end iteration");
     return;
   }
-  postMessage({ index: i, iteration: index, action: "download", images: json.images });
+  postMessage({ index: i, action: "download", images: json.images });
   /*json.images.forEach((image, index) => {
       postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
     });*/
