@@ -205,6 +205,7 @@ async function startQuery(queryClass) {
         if (isApp()) {
           const imageURL = await dataURIToBlob(dataURI);
           gonative.share.downloadFile({ url: imageURL });
+          URL.revokeObjectURL(imageURL);
         } else {
           let a = document.createElement("a");
           a.href = dataURI;
@@ -226,7 +227,7 @@ async function startQuery(queryClass) {
       startNextQuery(queryClass);
     }
   };
-  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations, isApp: isApp() });
+  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
 }
 
 function startNextQuery(queryClass) {
