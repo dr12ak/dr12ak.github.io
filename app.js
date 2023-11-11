@@ -204,7 +204,11 @@ async function startQuery(queryClass) {
         const dataURI = "data:image/png;base64," + image;
         if (isApp()) {
           const imageURL = await dataURIToBlob(dataURI);
-          gonative.share.downloadFile({ url: imageURL });
+          try {
+            gonative.share.downloadFile({ url: imageURL });
+          } catch {
+            alert("Allow storage permission to download the file");
+          }
         } else {
           let a = document.createElement("a");
           a.href = dataURI;
