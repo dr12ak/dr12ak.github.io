@@ -196,49 +196,41 @@ async function startQuery(queryClass) {
   document.querySelector("article." + queryClass + " .log").innerHTML = "";
 
   const worker = new Worker("queryWorker.js");
-  const zipWorker = new Worker("./zip/zipWorker.js");
 
-  worker.onmessage = async (e) => {
+  worker.onmessage = (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      zipWorker.postMessage({ file: e.data.file, filename: imageName(e.data.iteration) });
+      e.data.images.forEach(async (image, index) => {
+        const dataURI = "data:image/png;base64," + image;
+        if (isApp()) {
+          const imageURL = await dataURIToBlob(dataURI);
+          try {
+            gonative.share.downloadFile({ url: imageURL });
+          } catch {
+            alert("Allow storage permission to download the file");
+          }
+        } else {
+          let a = document.createElement("a");
+          a.href = dataURI;
+          a.download = imageName(index);
+          a.click();
+        }
+      });
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
       if (abort) {
-        endQuery(worker, zipWorker, queryClass);
+        worker.terminate();
+        downloadCounter++;
+        startNextQuery(queryClass);
       } else worker.postMessage({}); // post after abort so it doesn't send another request
     } else if (e.data.action === "end query") {
-      endQuery(worker, zipWorker, queryClass);
-    } else if (e.data.action === "text error") {
-      endQuery(worker, zipWorker, queryClass);
+      worker.terminate();
+      downloadCounter++;
+      startNextQuery(queryClass);
     }
   };
   worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
-
-  zipWorker.onmessage = (e) => {
-    if(isApp()){
-      gonative.share.downloadFile({ url: e.data.url });
-    } else{
-    try {
-      let a = document.createElement("a");
-      a.href = e.data.url;
-      a.download = new Date().getTime() + ".zip";
-      a.click();
-    } catch {}
-    setTimeout(() => {
-      URL.revokeObjectURL(e.data.url);
-    }, 500);
-    }
-  };
-}
-
-async function endQuery(worker, zipWorker, queryClass) {
-  worker.terminate();
-  zipWorker.postMessage({ isApp: isApp(), save: true });
-  //console.log(URL.createObjectURL(await downloadZip(files).blob()));
-  downloadCounter++;
-  startNextQuery(queryClass);
 }
 
 function startNextQuery(queryClass) {
@@ -287,17 +279,6 @@ function serverStatus() {
       })
       .catch((error) => document.querySelector("#online-indicator").classList.remove("online"));
   } else document.querySelector("#online-indicator").classList.remove("online");
-}
-
-function insertChar(element, event) {
-  if (autocompleteTextarea && autocompleteTextarea.textarea) {
-    autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.substring(0, autocompleteTextarea.textarea.selectionEnd) + event.target.closest("li").innerText + autocompleteTextarea.textarea.value.substring(autocompleteTextarea.textarea.selectionEnd + 1);
-    autocompleteTextarea.textarea.selectionEnd = autocompleteTextarea.textarea.selectionEnd + 1;
-    autocompleteTextarea.textarea.focus();
-
-    saveTab(getClass(autocompleteTextarea.textarea.closest("article")));
-    onInput(autocompleteTextarea.textarea);
-  }
 }
 
 function encodeHTML(text) {
