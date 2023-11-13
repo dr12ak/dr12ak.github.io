@@ -224,7 +224,7 @@ async function startQuery(queryClass) {
       a.download = new Date().getTime() + ".zip";
       a.click();
     } catch {}
-    setTimeout(() => {
+    if(!isApp()) setTimeout(() => {
       URL.revokeObjectURL(e.data.url);
     }, 500);
   };
