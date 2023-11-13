@@ -37,8 +37,12 @@ onmessage = (e) => {
 
 async function next() {
   postResponse("start query");
-  payload["prompt"] = dynamicPrompt(data.prompt);
-  payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
+  try {
+    payload["prompt"] = dynamicPrompt(data.prompt);
+    payload["negative_prompt"] = dynamicPrompt(data.negativePrompt);
+  } catch {
+    postResponse("text error");
+  }
   postResponse("start iteration");
   let json;
   try {
@@ -54,10 +58,9 @@ async function next() {
     postResponse("end iteration");
     return;
   }
-  postMessage({ index: i, action: "download", images: json.images });
-  /*json.images.forEach((image, index) => {
-      postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
-    });*/
+  json.images.forEach((image, index) => {
+    postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
+  });
   i++;
   postResponse("end iteration");
   if (i === data.iterations) postResponse("end query");

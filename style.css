@@ -28,6 +28,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body {
@@ -164,6 +165,7 @@ textarea {
   width: 100%;
   min-height: 2rem;
   padding: 0.5rem;
+  /*flex: 0 0 auto;*/
 
   border: none;
   overflow: auto;
@@ -182,6 +184,7 @@ textarea {
 #tab-settings {
   margin: 1rem;
   margin-top: 0;
+  /*height: calc(100% - 7.65rem);*/
 }
 
 #tab-settings.safe .controls,
@@ -193,6 +196,7 @@ article {
   padding: 1rem;
   border: 1px solid var(--border-color);
   display: none;
+  /*max-height: 100%;*/
 }
 
 article * {
@@ -214,6 +218,7 @@ summary {
   justify-content: space-between;
   gap: 1rem;
   align-items: stretch;
+  flex-wrap: wrap;
 }
 
 .controls-info > * {
@@ -305,6 +310,7 @@ button.can-stop {
   margin-right: -1rem;
   margin-bottom: -1rem;
   border-radius: 0;
+  max-height: 25vh;
 }
 
 .log > li {
@@ -340,4 +346,22 @@ button.can-stop {
   outline: 1px solid var(--border-color);
   cursor: pointer;
   border-radius: 0;
+}
+
+#keyboard-addon {
+  position: fixed;
+  bottom: 0;
+  display: grid;
+  width: 100%;
+  overflow-x: auto;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1px;
+}
+
+#keyboard-addon > li {
+  padding: 0.1rem 0.5rem;
+  background-color: var(--secondary-background-color);
+  outline: 1px solid var(--border-color);
 }
