@@ -197,7 +197,7 @@ async function startQuery(queryClass) {
 
   const worker = new Worker("queryWorker.js");
 
-  worker.onmessage = (e) => {
+  worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
       e.data.images.forEach(async (image, index) => {
@@ -220,17 +220,21 @@ async function startQuery(queryClass) {
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
       if (abort) {
-        worker.terminate();
-        downloadCounter++;
-        startNextQuery(queryClass);
+        endQuery(worker, queryClass);
       } else worker.postMessage({}); // post after abort so it doesn't send another request
     } else if (e.data.action === "end query") {
-      worker.terminate();
-      downloadCounter++;
-      startNextQuery(queryClass);
+      endQuery(worker, queryClass);
+    } else if (e.data.action === "text error") {
+      endQuery(worker, queryClass);
     }
   };
   worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
+}
+
+async function endQuery(worker, queryClass) {
+  worker.terminate();
+  downloadCounter++;
+  startNextQuery(queryClass);
 }
 
 function startNextQuery(queryClass) {
@@ -279,6 +283,17 @@ function serverStatus() {
       })
       .catch((error) => document.querySelector("#online-indicator").classList.remove("online"));
   } else document.querySelector("#online-indicator").classList.remove("online");
+}
+
+function insertChar(element, event) {
+  if (autocompleteTextarea && autocompleteTextarea.textarea) {
+    autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.substring(0, autocompleteTextarea.textarea.selectionEnd) + event.target.closest("li").innerText + autocompleteTextarea.textarea.value.substring(autocompleteTextarea.textarea.selectionEnd + 1);
+    autocompleteTextarea.textarea.selectionEnd = autocompleteTextarea.textarea.selectionEnd + 1;
+    autocompleteTextarea.textarea.focus();
+
+    saveTab(getClass(autocompleteTextarea.textarea.closest("article")));
+    onInput(autocompleteTextarea.textarea);
+  }
 }
 
 function encodeHTML(text) {

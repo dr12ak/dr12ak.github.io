@@ -245,8 +245,13 @@ window.addEventListener("load", async () => {
   });
 
   document.addEventListener("click", (event) => {
-    if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
-    else document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
+    if (event.target.closest("textarea")) {
+      if (!autocompleteTextarea || event.target.closest("textarea") != autocompleteTextarea.textarea) {
+        autocompleteTextarea = getTextarea(event.target.closest("textarea"));
+        document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
+      }
+    } else if (event.target.closest("#autocomplete")) insertTag(event.target.closest(".tag-autocomplete"));
+    else if (!event.target.closest("#keyboard-addon")) document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
   });
 });
 
@@ -313,14 +318,13 @@ function nFormatter(num, digits) {
 }
 
 function getTextarea(element) {
-  let left = element.selectionStart;
-  if (element.value[left] === ",") left--;
-  while (left >= 0 && element.value[left] !== ",") {
+  let right = element.selectionEnd;
+  let left = element.selectionStart == right ? right - 1 : element.selectionStart;
+  while (left >= 0 && ",{|}".indexOf(element.value[left]) < 0) {
     left--;
   }
-  let right = element.selectionEnd - 1;
-  if (element.value[right] === ",") right++;
-  while (right <= element.value.length - 1 && element.value[right] !== ",") {
+
+  while (right < element.value.length && ",{|}".indexOf(element.value[right]) < 0) {
     right++;
   }
 
@@ -386,8 +390,11 @@ function insertTag(element) {
     autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.substring(0, autocompleteTextarea.index) + " " + result + "," + autocompleteTextarea.textarea.value.substring(autocompleteTextarea.index + autocompleteTextarea.originalWord.length);
     autocompleteTextarea.textarea.value = autocompleteTextarea.textarea.value.replaceAll(",,", ",");
     autocompleteTextarea.textarea.selectionEnd = autocompleteTextarea.index + result.length + 2;
+    autocompleteTextarea.textarea.focus();
     document.querySelectorAll(".tag-autocomplete").forEach((item) => item.classList.add("hide"));
     selectedTag = document.querySelector(".selected-tag-autocomplete");
     if (selectedTag != null) selectedTag.classList.remove("selected-tag-autocomplete");
+
+    saveTab(getClass(autocompleteTextarea.textarea.closest("article")));
   }
 }
