@@ -54,10 +54,12 @@ async function next() {
     postResponse("end iteration");
     return;
   }
-  postMessage({ index: i, action: "download", images: json.images });
-  /*json.images.forEach((image, index) => {
+  if (data.isApp) gonative.share.downloadFile({ url: URL.createObjectURL(await (await fetch("data:image/png;base64," + image)).blob()) });
+  else {
+    json.images.forEach((image, index) => {
       postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
-    });*/
+    });
+  }
   i++;
   postResponse("end iteration");
   if (i === data.iterations) postResponse("end query");

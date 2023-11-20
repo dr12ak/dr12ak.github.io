@@ -200,35 +200,23 @@ async function startQuery(queryClass) {
   worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      e.data.images.forEach(async (image, index) => {
-        const dataURI = "data:image/png;base64," + image;
-        if (isApp()) {
-          const imageURL = await dataURIToBlob(dataURI);
-          try {
-            gonative.share.downloadFile({ url: imageURL });
-          } catch {
-            alert("Allow storage permission to download the file");
-          }
-        } else {
-          let a = document.createElement("a");
-          a.href = dataURI;
-          a.download = imageName(index);
-          a.click();
-        }
-      });
+      let a = document.createElement("a");
+      a.href = e.data.file;
+      a.download = imageName(e.data.iteration);
+      a.click();
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
       if (abort) {
         endQuery(worker, queryClass);
-      } else worker.postMessage({}); // post after abort so it doesn't send another request
+      } else if (e.data.index !== iterations) worker.postMessage({}); // post after abort so it doesn't send another request
     } else if (e.data.action === "end query") {
       endQuery(worker, queryClass);
     } else if (e.data.action === "text error") {
       endQuery(worker, queryClass);
     }
   };
-  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations });
+  worker.postMessage({ prompt: prompt, negativePrompt: negativePrompt, url: url, iterations: iterations, isApp: isApp() });
 }
 
 async function endQuery(worker, queryClass) {

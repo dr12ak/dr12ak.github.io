@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Device Offline</title>
+    <style type="text/css">
+      :root {
+        --primary-background-color: #0b0f19;
+        --primary-text-color: #ffffff;
+      }
+      [data-theme="dark"] {
+        --primary-background-color: #0b0f19;
+        --primary-text-color: #ffffff;
+      }
+      [data-theme="light"] {
+        --primary-background-color: #ffffff;
+        --primary-text-color: #1c1c1e;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        background-color: var(--primary-background-color) !important;
+      }
+      html,
+      body,
+      button {
+        font-family: "Roboto Mono", monospace;
+        font-size: 1rem;
+      }
+      div.container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        gap: 1%;
+
+        color: var(--primary-text-color);
+        text-align: center;
+      }
+      button {
+        width: 5rem;
+        height: 3rem;
+
+        color: #ffffff !important;
+
+        border: none;
+        outline: none;
+        border-radius: 0.3rem;
+        background-color: #0060df;
+
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button type="button" style="visibility: hidden">Retry</button>
+      <span style="visibility: hidden">
+        <p>No internet connection<br />Check your connection and try again</p>
+      </span>
+      <div id="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" height="96" viewBox="0 0 24 24" width="96">
+          <circle r="8" cx="12" cy="12" fill="#f44336" />
+        </svg>
+      </div>
+      <span>
+        <p>No internet connection<br />Check your connection and try again</p>
+      </span>
+      <button id="retryButton" type="button" onclick="gonative.webview.reload()">Retry</button>
+    </div>
+    <script>
+      function updateTheme() {
+        if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+          document.documentElement.setAttribute("data-theme", "light");
+        } else {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      }
+      updateTheme();
+      if (window.matchMedia) {
+        window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", updateTheme);
+      }
+    </script>
+  </body>
+</html>
