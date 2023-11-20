@@ -209,7 +209,7 @@ async function startQuery(queryClass) {
           a.download = imageName(index);
           a.click();
         }
-      }
+      });
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
