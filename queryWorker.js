@@ -55,7 +55,7 @@ async function next() {
     return;
   }
 
-  postMessage({ index: i, iteration: index, action: "download", files: json.images });
+  postMessage({ index: i, action: "download", files: json.images });
   i++;
   postResponse("end iteration");
   if (i === data.iterations) postResponse("end query");
