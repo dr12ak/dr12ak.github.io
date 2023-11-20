@@ -202,7 +202,7 @@ async function startQuery(queryClass) {
     else if (e.data.action === "download") {
       e.data.files.forEach(async (image, index) => {
         const dataURI = "data:image/png;base64," + image
-        if (isApp()) median.share.downloadFile({url: URL.createObjectURL(await (await fetch(dataURI)).blob()), open: false})
+        if (isApp()) median.share.downloadFile({url: URL.createObjectURL(await (await fetch(dataURI)).blob())})
         else {
           let a = document.createElement("a");
           a.href = dataURI;
