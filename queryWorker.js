@@ -54,8 +54,8 @@ async function next() {
     postResponse("end iteration");
     return;
   }
-  
-  json.images.forEach((image, index) => {
+
+  json.images.forEach(async (image, index) => {
     if (data.isApp) gonative.share.downloadFile({ url: URL.createObjectURL(await (await fetch("data:image/png;base64," + image)).blob()) });
     else postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
   });
