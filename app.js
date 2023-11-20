@@ -200,10 +200,16 @@ async function startQuery(queryClass) {
   worker.onmessage = async (e) => {
     if (e.data.action === "start iteration") divLog(e.data.prompt);
     else if (e.data.action === "download") {
-      let a = document.createElement("a");
-      a.href = e.data.file;
-      a.download = imageName(e.data.iteration);
-      a.click();
+      e.data.files.forEach(async (image, index) {
+        const dataURI = "data:image/png;base64," + image
+        if (isApp()) median.share.downloadFile({url: URL.createObjectURL(await (await fetch(url)).blob()), open: false})
+        else {
+          let a = document.createElement("a");
+          a.href = dataURI;
+          a.download = imageName(index);
+          a.click();
+        }
+      }
     } else if (e.data.action === "error") divLog(e.data.exception, "error");
     else if (e.data.action === "end iteration") {
       document.querySelector("article." + queryClass + " .progress").innerHTML = parseInt(e.data.index) + "/" + iterations;
