@@ -15,12 +15,18 @@
 
   font-family: "Roboto Mono", monospace;
 
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently */
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently */
 }
 
 html,
@@ -41,18 +47,11 @@ header {
   align-items: center;
   gap: 1rem;
 
-  padding: 1rem;
+  margin: 1rem;
   font-size: 0.875rem;
 }
 
-input {
-  border: none;
-  outline: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-  border-radius: var(--border-radius);
-}
-
-header > input {
+header>input {
   max-width: 23rem;
   min-width: 3rem;
 }
@@ -71,7 +70,7 @@ header > input {
   background-color: var(--accent);
 }
 
-#online-indicator.online > .blink {
+#online-indicator.online>.blink {
   width: inherit;
   height: inherit;
 
@@ -89,10 +88,16 @@ header > input {
   }
 }
 
-nav {
-  padding-top: 1rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
+input {
+  border: none;
+  outline: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
+  border-radius: var(--border-radius);
+}
+
+main {
+  position: relative;
+  margin: 1rem;
   display: flex;
 }
 
@@ -111,7 +116,7 @@ ul {
   padding-right: 1px;
 }
 
-#tab-list li {
+.tab-header {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -125,7 +130,7 @@ ul {
   color: var(--secondary-text-color);
 }
 
-#tab-list li.active {
+.tab.active .tab-header {
   background-color: var(--primary-background-color);
   outline: none;
   border-left: 1px solid var(--border-color);
@@ -143,10 +148,12 @@ svg {
 
   flex: 0 0 auto;
 }
-#tab-list > li > div {
+
+.close-tab {
   display: flex;
   background-color: inherit;
 }
+
 #add-tab {
   display: flex;
   background-color: var(--secondary-background-color);
@@ -181,36 +188,39 @@ textarea {
   line-height: 1.43;
 }
 
-#tab-settings {
-  margin: 1rem;
-  margin-top: 0;
-  /*height: calc(100% - 7.65rem);*/
-}
-
-#tab-settings.safe .controls,
-#tab-settings.safe details {
+body.safe header,
+body.safe details,
+body.safe .controls {
   display: none;
 }
 
-article {
+.tab-content {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 100%;
   padding: 1rem;
   border: 1px solid var(--border-color);
   display: none;
-  /*max-height: 100%;*/
 }
 
-article * {
-  border-radius: var(--border-radius);
-}
-
-article.active {
+.tab.active .tab-content {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+.tab-content * {
+  border-radius: var(--border-radius);
+}
+
+#tab-list>.tab:only-child .close-tab {
+  display: none;
+}
+
 summary {
   direction: rtl;
+  float: right;
 }
 
 .controls {
@@ -221,7 +231,19 @@ summary {
   flex-wrap: wrap;
 }
 
-.controls-info > * {
+button {
+  width: 5rem;
+  height: 3rem;
+
+  border: none;
+  outline: none;
+  background-color: var(--accent);
+  border-radius: var(--border-radius);
+
+  cursor: pointer;
+}
+
+.options>* {
   width: 3.5rem;
   height: 50%;
   text-align: center;
@@ -241,23 +263,60 @@ summary {
   border-top-width: 0.5px;
 }
 
-.controls button {
-  width: 5rem;
-  height: 3rem;
-
-  border: none;
-  outline: none;
-  background-color: var(--accent);
-
-  cursor: pointer;
-}
-
 button.can-stop {
-  background-color: var(--secondary-background-color);
+  background-color: var(--border-color);
 }
 
-#tab-list > li:only-child > div {
+.log {
+  font-size: 75%;
+}
+
+.log:empty {
   display: none;
+}
+
+.log>li {
+  padding: 0.25rem;
+  background-color: var(--secondary-background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+}
+
+.log>li:first-child {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.log>li:last-child {
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
+.log>.error {
+  background-color: var(--error);
+  border-left-width: 0.5rem;
+}
+
+#keyboard-addon {
+  position: fixed;
+  bottom: 0;
+  display: grid;
+  width: 100%;
+  overflow-x: auto;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1px;
+}
+
+#keyboard-addon>li {
+  min-width: 1ch;
+  width: 2.5ch;
+  max-width: 10vw;
+  height: 1.5rem;
+  text-align: center;
+  background-color: var(--secondary-background-color);
+  outline: 1px solid var(--border-color);
 }
 
 #autocomplete {
@@ -297,73 +356,4 @@ button.can-stop {
 
 .tag-popularity:empty {
   margin-left: 0;
-}
-
-.controls-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.log {
-  margin-left: -1rem;
-  margin-right: -1rem;
-  margin-bottom: -1rem;
-  border-radius: 0;
-  max-height: 25vh;
-}
-
-.log > li {
-  padding: 0.3rem;
-  border-top: 1px solid var(--border-color);
-  border-radius: 0;
-  font-size: 0.7rem;
-  background-color: var(--secondary-background-color);
-
-  -webkit-touch-callout: text;
-  -webkit-user-select: text;
-  -khtml-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-}
-
-.log > li.error {
-  background-color: var(--error);
-  border-left: 0.3rem solid var(--border-color);
-  border-bottom: 0.3rem solid var(--border-color);
-}
-
-#premade-tags {
-  position: absolute;
-  border: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-}
-
-#premade-tags > li {
-  color: var(--primary-text-color);
-  background-color: var(--secondary-background-color);
-  outline: 1px solid var(--border-color);
-  cursor: pointer;
-  border-radius: 0;
-}
-
-#keyboard-addon {
-  position: fixed;
-  bottom: 0;
-  display: grid;
-  width: 100%;
-  overflow-x: auto;
-  grid-auto-flow: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 1px;
-}
-
-#keyboard-addon > li {
-  width: 1.5rem;
-  height: 1.5rem;
-  text-align: center;
-  background-color: var(--secondary-background-color);
-  outline: 1px solid var(--border-color);
 }

@@ -1,5 +1,4 @@
 const payload = {
-  //sd_model_checkpoint: "model.safetensors",
   enable_hr: true,
   denoising_strength: 0.6,
   hr_upscaler: "Latent (nearest-exact)",
@@ -14,11 +13,13 @@ const payload = {
   width: 448,
   height: 640,
   prompt: "prompt",
-  negative_prompt: "negativePrompt",
+  negative_prompt: "negative prompt",
   override_settings: {
-    CLIP_stop_at_last_layers: 2,
+    sd_model_checkpoint: "model.safetensors",
     sd_vae: "model.vae.pt",
+    CLIP_stop_at_last_layers: 2,
     eta_noise_seed_delta: 31337,
+    enable_pnginfo: false,
   },
   override_settings_restore_afterwards: false,
 };
@@ -55,7 +56,10 @@ async function next() {
     return;
   }
 
-  postMessage({ index: i, action: "download", files: json.images });
+  json.images.forEach(async (image, index) => {
+    if (data.isApp) gonative.share.downloadFile({ url: URL.createObjectURL(await (await fetch("data:image/png;base64," + image)).blob()) });
+    else postMessage({ index: i, iteration: index, action: "download", file: "data:image/png;base64," + image });
+  });
   i++;
   postResponse("end iteration");
   if (i === data.iterations) postResponse("end query");

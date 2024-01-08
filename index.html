@@ -1,71 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Document</title>
-    <script src="autocomplete/autocomplete.js"></script>
-    <script src="app.js"></script>
-  </head>
-  <body>
-    <header>
-      <div id="online-indicator"><div class="blink"></div></div>
-      <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" placeholder="URL" />
-    </header>
-    <nav>
-      <div id="add-tab" onclick="addNewTab();">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 100 100">
-          <path d="M50 10 50 90 M10 50 90 50" stroke-width="20" />
-        </svg>
-      </div>
-      <ul id="tab-list">
-        <noscript>
-          <li class="q0 active" data-order="-1" onclick="focusTab(this);">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="autocomplete/autocomplete.js"></script>
+  <script src="app.js"></script>
+  <title>Document</title>
+</head>
+
+<body>
+  <header>
+    <div id="online-indicator">
+      <div class="blink"></div>
+    </div>
+    <input type="text" id="url" value="https://premium-promptly-snail.ngrok-free.app" size="45" placeholder="URL" />
+    <button onclick="prequeue()">Prequeue</button>
+  </header>
+  <main>
+    <div id="add-tab" onclick="addNewTab();">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 100 100">
+        <path d="M50 10 50 90 M10 50 90 50" stroke-width="20" />
+      </svg>
+    </div>
+    <ul id="tab-list">
+      <noscript>
+        <li class="tab active" data-index="0" data-order="-1">
+          <div class="tab-header" onclick="focusTab(this);">
             query0
-            <div onclick="closeTab(this)">
+            <div class="close-tab" onclick="closeTab(this, event)">
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 100 100">
                 <path d="M10 10 90 90 M90 10 10 90" stroke-width="20" />
               </svg>
             </div>
-          </li>
-        </noscript>
-      </ul>
-    </nav>
-    <main id="tab-settings">
-      <noscript>
-        <article class="q0 active">
-          <textarea class="prompt" oninput="saveTab(getClass(this.closest('article')));" rows="10" spellcheck="false"></textarea>
-          <div class="controls">
-            <div class="controls-option">
-              <button onclick="queueQuery(this);">Start</button>
-            </div>
-            <div class="controls-info">
-              <input class="iterations" type="number" min="1" max="100" step="1" value="20" />
-              <div class="progress">0/0</div>
-            </div>
           </div>
-          <details>
-            <summary>Negative Prompt</summary>
-            <textarea class="negative-prompt" oninput="saveTab(getClass(this.closest('article')));" rows="5" spellcheck="false"></textarea>
-          </details>
-          <ul class="log"></ul>
-        </article>
+          <div class="tab-content">
+            <textarea class="prompt" oninput="saveTabs();" rows="10" spellcheck="false"></textarea>
+            <div class="controls">
+              <button onclick="queueQuery(this);">Start</button>
+              <div class="options">
+                <input class="iterations" type="number" min="1" max="100" step="1" value="20" />
+                <div class="progress">0/0</div>
+              </div>
+            </div>
+            <details>
+              <summary>Negative Prompt</summary>
+              <textarea class="negative-prompt" oninput="saveTabs();" rows="5" spellcheck="false"></textarea>
+            </details>
+            <ul class="log"></ul>
+          </div>
+        </li>
       </noscript>
-    </main>
-    <ul id="keyboard-addon" onclick="insertChar(this, event);">
-      <li>(</li>
-      <li>)</li>
-      <li>{</li>
-      <li>|</li>
-      <li>}</li>
-      <li>:</li>
-      <li>&lt;</li>
-      <li>&gt;</li>
     </ul>
-  </body>
+  </main>
+  <ul id="keyboard-addon" onclick="insertCharacter(event);">
+    <li>(</li>
+    <li>)</li>
+    <li>{</li>
+    <li>|</li>
+    <li>}</li>
+    <li>:</li>
+    <li>&lt;</li>
+    <li>&gt;</li>
+  </ul>
+</body>
+
 </html>
