@@ -75,7 +75,7 @@ window.addEventListener("load", async () => {
 function loadPreviousTabs() {
   if (localStorage.getItem(window.location.href)) {
     const localStorageArray = JSON.parse(localStorage.getItem(window.location.href));
-    localStorageArray.sort((a, b) => a.index < b.index);
+    localStorageArray.sort((a, b) => a.index - b.index);
     localStorageArray.forEach((localStorageItem) => {
       addTab(new Tab(localStorageItem.prompt, localStorageItem.negativePrompt, localStorageItem.index));
     });
@@ -313,7 +313,7 @@ async function prequeue() {
     let prompts = [];
 
     document.querySelectorAll(".tab").forEach((tab) => {
-      prompts.push({ "iterations": parseInt(tab.querySelector(".iterations").value), "prompt": tab.querySelector(".prompt").value, "negative_prompt": tab.querySelector(".negative-prompt").value });
+      prompts.push({ iterations: parseInt(tab.querySelector(".iterations").value), prompt: tab.querySelector(".prompt").value, negative_prompt: tab.querySelector(".negative-prompt").value });
     });
 
     payload["text"] = payload["text"].replace("[url]", document.querySelector("#url").value);
