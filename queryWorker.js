@@ -1,5 +1,4 @@
 const payload = {
-  //sd_model_checkpoint: "model.safetensors",
   enable_hr: true,
   denoising_strength: 0.6,
   hr_upscaler: "Latent (nearest-exact)",
@@ -14,11 +13,13 @@ const payload = {
   width: 448,
   height: 640,
   prompt: "prompt",
-  negative_prompt: "negativePrompt",
+  negative_prompt: "negative prompt",
   override_settings: {
-    CLIP_stop_at_last_layers: 2,
+    sd_model_checkpoint: "model.safetensors",
     sd_vae: "model.vae.pt",
+    CLIP_stop_at_last_layers: 2,
     eta_noise_seed_delta: 31337,
+    enable_pnginfo: false,
   },
   override_settings_restore_afterwards: false,
 };
