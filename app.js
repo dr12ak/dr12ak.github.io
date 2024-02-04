@@ -290,13 +290,22 @@ function insertCharacter(event) {
   }
 }
 
+function openSidebar() {
+  document.querySelector("#sidebar").style.display = "";
+}
+function closeSidebar() {
+  document.querySelector("#sidebar").style.display = "none";
+}
+
 async function prequeue() {
   const tabs = document.querySelectorAll(".tab").length;
-  if (confirm("Run? (Queue " + tabs + (tabs === 1 ? " tab" : " tabs") + " to run)")) {
+  if (!Array.from(document.querySelectorAll("#choose-domain input[type=checkbox]")).some((domain) => domain.checked)) alert("At least one domain needs to be used.");
+  else if (confirm("Run? (Queue " + tabs + (tabs === 1 ? " tab" : " tabs") + " to run)")) {
+    const notebookId = "h-" + new Date().getTime().toString(36);
     const payload = {
-      slug: "dr12ak/run-helper",
-      newTitle: "run-helper",
-      text: '{"cells": [{"cell_type": "code", "execution_count": null, "metadata": {}, "outputs": [], "source": [ "import json\\n", "import requests\\n", "import io\\n", "import base64\\n", "import random\\n", "import re\\n", "\\n", "!pip install supabase\\n", "import os\\n", "from supabase import create_client, Client\\n", "\\n", "supabase: Client = create_client(\\"https://yrztxljxuckpokjoqnwu.supabase.co\\", \\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyenR4bGp4dWNrcG9ram9xbnd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQzODk2MTgsImV4cCI6MjAxOTk2NTYxOH0.heP9JaLV9aTQLxs092UvlqaabjJef0cMe5Io3M_97p0\\")\\n", "\\n", "payload = {\\n", "    \\"enable_hr\\": True,\\n", "    \\"denoising_strength\\": 0.6,\\n", "    \\"hr_upscaler\\": \\"Latent (nearest-exact)\\",\\n", "    \\"hr_second_pass_steps\\": 20,\\n", "    \\"hr_resize_x\\": 960,\\n", "    \\"hr_resize_y\\": 1280,\\n", "    \\"seed\\": -1,\\n", "    \\"sampler_name\\": \\"DPM++ 2M Karras\\",\\n", "    \\"batch_size\\": 2,\\n", "    \\"steps\\": 25,\\n", "    \\"cfg_scale\\": 7.5,\\n", "    \\"width\\": 448,\\n", "    \\"height\\": 640,\\n", "    \\"prompt\\": \\"prompt\\",\\n", "    \\"negative_prompt\\": \\"negative prompt\\",\\n", "    \\"override_settings\\": {\\n", "        \\"sd_model_checkpoint\\": \\"model.safetensors\\",\\n", "        \\"sd_vae\\": \\"model.vae.pt\\",\\n", "        \\"CLIP_stop_at_last_layers\\": 2,\\n", "        \\"eta_noise_seed_delta\\": 31337,\\n", "        \\"enable_pnginfo\\": False,\\n", "    },\\n", "    \\"override_settings_restore_afterwards\\": False,\\n", "}\\n", "\\n", "count = 0\\n", "\\n", "def createAllSets(sets):\\n", "  for i in range(len(sets)):\\n", "    print(\\"set number: \\" + str(i))\\n", "    createSet(sets[i])\\n", "\\n",  "def dynamicPrompt(prompt):\\n", "  result = re.findall(r\\"({([^{}]*):[+-]?([0-9]*[.]?[0-9]+)})\\", prompt)\\n", "  for i in range(len(result)):\\n", "    replace = \\"\\"\\n", "    if random.random() <= float(result[i][2]):\\n", "      replace = result[i][1]\\n", "    prompt = prompt.replace(result[i][0], replace)\\n", "  result = re.findall(r\\"({([^{|}]+[|][^{}]+)})\\", prompt)\\n", "  for i in range(len(result)):\\n", "    replace = random.choice(result[i][1].split(\\"|\\"))\\n", "    prompt = prompt.replace(result[i][0], replace)\\n", "  return prompt\\n", "\\n", "def createSet(object):\\n", "  global payload\\n", "  global count\\n", "  iterations = object.get(\\"iterations\\")\\n", "  for i in range(iterations):\\n", "    payload[\\"prompt\\"] = dynamicPrompt(object.get(\\"prompt\\"))\\n", "    payload[\\"negative_prompt\\"] = dynamicPrompt(object.get(\\"negative_prompt\\"))\\n", "    print(\\" iteration number: \\" + str(i) + \\", prompt: \\" + payload[\\"prompt\\"])\\n", "    response = requests.post(url=\\"[url]/sdapi/v1/txt2img\\", json=payload)\\n", "    r = response.json()\\n", "    for j in range(len(r[\\"images\\"])):\\n", "      print(\\"  image number: \\" + str(j))\\n", "      image = base64.b64decode(r[\\"images\\"][j])\\n", "      while True:\\n", "        try:\\n", "          supabase.storage.from_(\\"images\\").upload(file=image, path=f\\"{count}.png\\", file_options={\\"content-type\\": \\"image/png\\"})\\n", "          break\\n", "        except Exception as error:\\n", "          #print(error.args[0].get(\\"statusCode\\"))\\n", "          count += 1\\n", "      count += 1\\n", "\\n", "createAllSets([])"]}], "metadata": {"kaggle": {"isGpuEnabled": false, "isInternetEnabled": true, "language": "python", "sourceType": "notebook"}, "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}, "language_info": {"codemirror_mode": {"name": "ipython", "version": 3}, "file_extension": ".py", "mimetype": "text/x-python", "name": "python", "nbconvert_exporter": "python", "pygments_lexer": "ipython3", "version": "3.12.0"}}, "nbformat": 4, "nbformat_minor": 2}',
+      slug: "dr12ak/" + notebookId,
+      newTitle: notebookId,
+      text: String.raw`{"cells":[{"cell_type":"code","execution_count":null,"metadata":{},"outputs":[],"source":["import requests\n","import base64\n","import random\n","import re\n","import threading\n","\n","!pip install supabase\n","import os\n","from supabase import create_client, Client\n","\n","supabase: Client = create_client(\"https://yrztxljxuckpokjoqnwu.supabase.co\", \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyenR4bGp4dWNrcG9ram9xbnd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQzODk2MTgsImV4cCI6MjAxOTk2NTYxOH0.heP9JaLV9aTQLxs092UvlqaabjJef0cMe5Io3M_97p0\")\n","\n","endpoints = []\n","for i in range(len(endpoints)):\n","  endpoints[i] = re.sub(\"(^\\w+:|^)\\/\\/\", \"\", endpoints[i])\n","  endpoints[i] = \"https://\" + endpoints[i]\n","\n","def folderExists(path, name):\n","  response = supabase.storage.from_(\"images\").list(path, {\"search\": name})\n","  return any(a.get(\"name\", False) == name for a in response)\n","\n","def createAll(all):\n","  for i in range(len(all)):\n","    print(\"COMPLETE SET: \" + str(i))\n","    count = 0\n","    while folderExists(\"\", \"name\" + str(count)):\n","      count += 1\n","    createAllSets(all[i], \"name\" + str(count))\n","  \n","  for i in range(len(endpoints)):\n","    requests.post(url=f\"{endpoints[i]}/sdapi/v1/server-kill\")\n","\n","def createAllSets(sets, path):\n","  global endpoints\n","  threads = []\n","  for i in range(len(endpoints)):\n","    threads.append(threading.Thread(target=threadSet, args=(sets[i::len(endpoints)], endpoints[i], path, i, )))\n","\n","  for thread in threads:\n","    thread.start()\n","  for thread in threads:\n","    thread.join()\n","\n","def threadSet(sets, endpoint, path, thread_index):\n","  for i in range(len(sets)):\n","    createSet(sets[i], endpoint, path + \"/set-\" + str(thread_index) + \"-\" + str(i))\n","\n","def createSet(setObject, endpoint, path):\n","  payload = {\n","    \"enable_hr\": True,\n","    \"denoising_strength\": 0.6,\n","    \"hr_upscaler\": \"Latent (nearest-exact)\",\n","    \"hr_second_pass_steps\": 20,\n","    \"hr_resize_x\": 960,\n","    \"hr_resize_y\": 1280,\n","    \"seed\": -1,\n","    \"sampler_name\": \"DPM++ 2M Karras\",\n","    \"batch_size\": 2,\n","    \"steps\": 25,\n","    \"cfg_scale\": 7.5,\n","    \"width\": 448,\n","    \"height\": 640,\n","    \"prompt\": \"prompt\",\n","    \"negative_prompt\": \"negative prompt\",\n","    \"override_settings\": {\n","        \"sd_model_checkpoint\": \"model.safetensors\",\n","        \"sd_vae\": \"model.vae.pt\",\n","        \"CLIP_stop_at_last_layers\": 2,\n","        \"eta_noise_seed_delta\": 31337,\n","        \"enable_pnginfo\": False,\n","    },\n","    \"override_settings_restore_afterwards\": False,\n","  }\n","  count = 0\n","  iterations = setObject.get(\"iterations\")\n","  for i in range(iterations):\n","    payload[\"prompt\"] = dynamicPrompt(setObject.get(\"prompt\"))\n","    payload[\"negative_prompt\"] = dynamicPrompt(setObject.get(\"negative_prompt\"))\n","    print(\" iteration number: \" + str(i) + \", prompt: \" + payload[\"prompt\"])\n","    response = requests.post(url=f\"{endpoint}/sdapi/v1/txt2img\", json=payload)\n","    r = response.json()\n","    for j in range(len(r[\"images\"])):\n","      print(\"  image number: \" + str(j))\n","      image = base64.b64decode(r[\"images\"][j])\n","      while True:\n","        try:\n","          supabase.storage.from_(\"images\").upload(file=image, path=f\"{path}/{count}.png\", file_options={\"content-type\": \"image/png\"})\n","          break\n","        except Exception as error:\n","          #print(error.args[0].get(\"statusCode\"))\n","          count += 1\n","      count += 1\n","\n","def dynamicPrompt(prompt):\n","  result = re.findall(r\"({([^{}]*):[+-]?([0-9]*[.]?[0-9]+)})\", prompt)\n","  for i in range(len(result)):\n","    replace = \"\"\n","    if random.random() <= float(result[i][2]):\n","      replace = result[i][1]\n","    prompt = prompt.replace(result[i][0], replace)\n","  result = re.findall(r\"({([^{|}]+[|][^{}]+)})\", prompt)\n","  for i in range(len(result)):\n","    replace = random.choice(result[i][1].split(\"|\"))\n","    prompt = prompt.replace(result[i][0], replace)\n","  return prompt\n","\n","\n","createAll([])\n","#createAll([[{\"iterations\": 1, \"prompt\": \"test\", \"negative_prompt\": \"test\"}, {\"iterations\": 1, \"prompt\": \"test1\", \"negative_prompt\": \"test1\"}]])\n","# [[{iterations: \"\", prompt: \"\", negative_promp: \"\"}, {iterations: \"\", prompt: \"\", negative_promp: \"\"}], [{...}, ...], ...]"]}],"metadata":{"kaggle":{"isGpuEnabled":false,"isInternetEnabled":true,"language":"python","sourceType":"notebook"},"kernelspec":{"display_name":"Python 3","language":"python","name":"python3"},"language_info":{"codemirror_mode":{"name":"ipython","version":3},"file_extension":".py","mimetype":"text/x-python","name":"python","nbconvert_exporter":"python","pygments_lexer":"ipython3","version":"3.12.0"}},"nbformat":4,"nbformat_minor":2}`,
       language: "python",
       kernelType: "notebook",
       isPrivate: "true",
@@ -310,17 +319,18 @@ async function prequeue() {
       categoryIds: [],
     };
 
-    let prompts = [];
+    let domains = [];
+    document.querySelectorAll("#choose-domain input[type=checkbox]:checked").forEach((domain) => domains.push(domain.name));
+    payload["text"] = payload["text"].replace("endpoints = []", "endpoints = " + JSON.stringify(domains).replaceAll(`\"`, `\'`));
 
+    let prompts = [];
     document.querySelectorAll(".tab").forEach((tab) => {
       prompts.push({ iterations: parseInt(tab.querySelector(".iterations").value), prompt: tab.querySelector(".prompt").value, negative_prompt: tab.querySelector(".negative-prompt").value });
     });
+    payload["text"] = payload["text"].replace("([])", "([" + JSON.stringify(prompts).replaceAll(`\"`, `\'`) + "])");
 
-    payload["text"] = payload["text"].replace("[url]", document.querySelector("#url").value);
-    payload["text"] = payload["text"].replace("([])", "(" + JSON.stringify(prompts).replaceAll(`\"`, `\'`) + ")");
-
-    document.querySelector("button").disabled = true;
-    document.querySelector("button").style.backgroundColor = "var(--secondary-background-color)";
+    document.querySelector("#prequeue-button").disabled = true;
+    document.querySelector("#prequeue-button").style.backgroundColor = "var(--secondary-background-color)";
 
     const response = await fetch("https://www.kaggle.com/api/v1/kernels/push", {
       method: "POST",
@@ -333,6 +343,6 @@ async function prequeue() {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) document.querySelector("button").style.backgroundColor = "var(--error)";
+    if (!response.ok) document.querySelector("#prequeue-button").style.backgroundColor = "var(--error)";
   }
 }

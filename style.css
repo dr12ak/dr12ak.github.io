@@ -51,7 +51,7 @@ header {
   font-size: 0.875rem;
 }
 
-header>input {
+header > input {
   max-width: 23rem;
   min-width: 3rem;
 }
@@ -70,7 +70,7 @@ header>input {
   background-color: var(--accent);
 }
 
-#online-indicator.online>.blink {
+#online-indicator.online > .blink {
   width: inherit;
   height: inherit;
 
@@ -149,7 +149,8 @@ svg {
   flex: 0 0 auto;
 }
 
-.close-tab {
+.close-tab,
+.div-svg {
   display: flex;
   background-color: inherit;
 }
@@ -214,7 +215,7 @@ body.safe .controls {
   border-radius: var(--border-radius);
 }
 
-#tab-list>.tab:only-child .close-tab {
+#tab-list > .tab:only-child .close-tab {
   display: none;
 }
 
@@ -243,7 +244,7 @@ button {
   cursor: pointer;
 }
 
-.options>* {
+.options > * {
   width: 3.5rem;
   height: 50%;
   text-align: center;
@@ -275,24 +276,24 @@ button.can-stop {
   display: none;
 }
 
-.log>li {
+.log > li {
   padding: 0.25rem;
   background-color: var(--secondary-background-color);
   border: 1px solid var(--border-color);
   border-radius: 0;
 }
 
-.log>li:first-child {
+.log > li:first-child {
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
 }
 
-.log>li:last-child {
+.log > li:last-child {
   border-bottom-left-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }
 
-.log>.error {
+.log > .error {
   background-color: var(--error);
   border-left-width: 0.5rem;
 }
@@ -309,7 +310,7 @@ button.can-stop {
   padding-top: 1px;
 }
 
-#keyboard-addon>li {
+#keyboard-addon > li {
   min-width: 1ch;
   width: 2.5ch;
   max-width: 10vw;
@@ -356,4 +357,49 @@ button.can-stop {
 
 .tag-popularity:empty {
   margin-left: 0;
+}
+
+#sidebar {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: var(--primary-background-color);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
+}
+
+#sidebar-content {
+  flex: 1 1 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#choose-domain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin: 0;
+}
+
+#prequeue-button {
+  display: block;
+  margin-top: 1rem;
+  margin-left: auto;
 }
